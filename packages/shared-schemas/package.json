@@ -1,0 +1,9 @@
+{
+  "name": "@agentic-restaurant/shared-schemas",
+  "version": "1.0.0",
+  "description": "Shared validation schemas",
+  "private": true,
+  "exports": {
+    ".": "./index.ts"
+  }
+}

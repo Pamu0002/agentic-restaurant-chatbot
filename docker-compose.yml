@@ -1,0 +1,75 @@
+version: '3.8'
+
+services:
+  # Frontend - React PWA (served via nginx or dev server)
+  web-pwa:
+    container_name: restaurant-chatbot-web
+    build:
+      context: ./apps/web-pwa
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    environment:
+      - VITE_API_URL=http://localhost:5000/api/v1
+      - VITE_AI_URL=http://localhost:8000/api/v1
+    volumes:
+      - ./apps/web-pwa/src:/app/src
+    command: npm run dev
+    networks:
+      - restaurant-network
+
+  # Backend API Service (Node.js + Express)
+  backend-api:
+    container_name: restaurant-chatbot-api
+    build:
+      context: ./apps/backend-api
+      dockerfile: Dockerfile
+    ports:
+      - "5000:5000"
+    environment:
+      - NODE_ENV=development
+      - PORT=5000
+      - FIREBASE_PROJECT_ID=${FIREBASE_PROJECT_ID}
+      - NEO4J_URI=${NEO4J_URI}
+      - NEO4J_USER=${NEO4J_USER}
+      - NEO4J_PASSWORD=${NEO4J_PASSWORD}
+      - STRIPE_SECRET_KEY=${STRIPE_SECRET_KEY}
+      - JWT_SECRET=${JWT_SECRET}
+      - AI_SERVICE_URL=http://backend-ai:8000
+    volumes:
+      - ./apps/backend-api/src:/app/src
+    depends_on:
+      - backend-ai
+    networks:
+      - restaurant-network
+
+  # Backend AI Service (Python + FastAPI)
+  backend-ai:
+    container_name: restaurant-chatbot-ai
+    build:
+      context: ./apps/backend-ai
+      dockerfile: Dockerfile
+    ports:
+      - "8000:8000"
+    environment:
+      - ENVIRONMENT=development
+      - LOG_LEVEL=INFO
+      - GOOGLE_CLOUD_PROJECT=${GOOGLE_CLOUD_PROJECT}
+      - GOOGLE_APPLICATION_CREDENTIALS=/app/credentials.json
+      - FIREBASE_PROJECT_ID=${FIREBASE_PROJECT_ID}
+      - NEO4J_URI=${NEO4J_URI}
+      - VERTEX_AI_REGION=${VERTEX_AI_REGION:-us-central1}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+    volumes:
+      - ./apps/backend-ai/app:/app/app
+      - ${GOOGLE_APPLICATION_CREDENTIALS}:/app/credentials.json
+    networks:
+      - restaurant-network
+
+networks:
+  restaurant-network:
+    driver: bridge
+
+volumes:
+  firestore-data:
+  neo4j-data:

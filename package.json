@@ -1,0 +1,28 @@
+{
+  "name": "agentic-restaurant-chatbot",
+  "version": "1.0.0",
+  "description": "Agentic Restaurant Chatbot Platform - Unified conversational AI for restaurant discovery, booking, and payments",
+  "private": true,
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "npm run dev --workspaces",
+    "build": "npm run build --workspaces",
+    "test": "npm run test --workspaces",
+    "lint": "npm run lint --workspaces",
+    "docker:up": "docker-compose up -d",
+    "docker:down": "docker-compose down",
+    "docker:logs": "docker-compose logs -f"
+  },
+  "keywords": [
+    "agentic-chatbot",
+    "restaurant",
+    "booking",
+    "AI",
+    "microservices"
+  ],
+  "author": "Your Name",
+  "license": "MIT"
+}
