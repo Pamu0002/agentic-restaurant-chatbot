@@ -1,0 +1,28 @@
+{
+  "name": "@restaurant/mobile",
+  "version": "1.0.0",
+  "description": "React Native mobile app for Restaurant Chatbot",
+  "private": true,
+  "main": "node_modules/expo/AppEntry.js",
+  "scripts": {
+    "start": "expo start",
+    "android": "expo start --android",
+    "ios": "expo start --ios",
+    "web": "expo start --web",
+    "build": "eas build",
+    "test": "jest"
+  },
+  "dependencies": {
+    "@restaurant/shared": "*",
+    "react": "^18.2.0",
+    "react-native": "0.73.0",
+    "expo": "^50.0.0",
+    "expo-router": "^2.0.0",
+    "axios": "^1.6.5"
+  },
+  "devDependencies": {
+    "@types/react": "^18.2.43",
+    "typescript": "^5.3.3",
+    "jest": "^29.7.0"
+  }
+}

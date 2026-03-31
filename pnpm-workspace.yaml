@@ -1,0 +1,8 @@
+packages:
+  - 'packages/@restaurant/shared'
+  - 'packages/@restaurant/customer-web'
+  - 'packages/@restaurant/provider-web'
+  - 'packages/@restaurant/provider-analytics'
+  - 'packages/@restaurant/admin-web'
+  - 'packages/@restaurant/support-web'
+  - 'services/*'

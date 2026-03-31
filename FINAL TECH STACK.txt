@@ -1,0 +1,35 @@
+FINAL TECH STACK
+I. Frontend Layer
+• React 18 + Vite + Tailwind CSS + TypeScript
+• Progressive Web App (responsive on all devices)
+• Socket.io for real-time updates
+II. Backend Layer 1: API Service
+• Node.js 18 LTS + Express.js + TypeScript
+• Port: 5000
+• Handles: REST APIs, Authentication (JWT), WebSocket, Payments
+III. Backend Layer 2: AI Service
+• Python 3.11 + FastAPI + Uvicorn
+• Port: 8000
+• Handles: LLM integration, Agent orchestration, Vector embeddings
+IV. Databases
+• Firebase Firestore - Real-time NoSQL (users, reservations)
+• Neo4j Aura - Graph DB (recommendations, ontology)
+• MongoDB Atlas - Structured data (analytics, logs)
+• Vertex AI Vector Search - Vector embeddings
+V. AI/ML Stack
+• Google Vertex AI (Gemini Pro) - Primary LLM
+• OpenAI GPT-4 - Fallback LLM
+• LangChain - Agent orchestration
+• CrewAI - Multi-agent workflows
+• Model Context Protocol (MCP) - Tool calling standard
+VI. Cloud Infrastructure• Google Cloud Platform (GCP)
+o Cloud Run (auto-scaling containers)
+o Cloud Storage + CDN (static assets)
+o Cloud Monitoring & Logging
+o Secret Manager, IAM, BigQuery
+VII. DevOps & Deployment
+• Docker - Containerization
+• GitHub Actions - CI/CD automation
+• npm workspaces - Monorepo management
+• Region: us-central1 (Google Cloud)
+

@@ -1,0 +1,153 @@
+
+
+# Product Backlog (Organized by Epics)
+
+## Epic 1 – User Registration and Authentication
+
+1. Display Welcome Screen on App Launch for new Users
+2. Display system logo and chatbot introduction
+3. Provide User Registration Screen
+4. Allow Users to Register using Email and Password
+5. Allow Users to Register using Google Authentication
+6. Store User Details Securely in Database
+7. Provide Secure Login Screen
+8. Allow Users to Log in using Email and Password
+9. Allow Users to Log in using Google Authentication
+10. Validate User Credentials before Login
+11. Allow Users to View Profile Information
+12. Allow Users to Edit Profile Information
+13. Store User Preferences for Personalization
+
+---
+
+# Epic 2 – Chatbot Interaction System
+
+14. Provide Chat Interface for User Interaction
+15. Allow Users to Send Messages to Chatbot
+16. Display Chatbot Responses in Real-Time
+17. Maintain conversation flow between user and system
+18. Process user messages using Google Vertex AI (Gemini)
+19. Identify user intent from conversational input
+20. Extract entities such as restaurant name, location, date, and time
+21. Maintain conversation context for multi-step interactions
+
+---
+
+# Epic 3 – Agentic AI Orchestration System
+
+22. Receive user requests from chatbot interface
+23. Analyze user intent and determine required agent
+24. Route requests to appropriate specialized agent
+25. Coordinate communication between multiple agents
+26. Maintain user session context during conversations
+27. Store conversation history for intelligent decision-making
+
+---
+
+# Epic 4 – Restaurant Discovery System
+
+28. Allow users to search restaurants by name
+29. Allow users to search restaurants by location
+30. Retrieve restaurant data from Firebase Firestore
+31. Display restaurant details including name, location, and contact information
+32. Display available menus for selected restaurants
+33. Display real-time restaurant availability
+34. Allow users to filter restaurants by cuisine type
+35. Allow users to filter restaurants by price range
+36. Allow users to filter restaurants based on availability
+
+---
+
+# Epic 5 – Personalized Recommendation System
+
+37. Analyze user preferences stored in Neo4j
+38. Recommend restaurants based on user preferences
+39. Recommend restaurants based on user interaction history
+40. Store user preference relationships in Neo4j database
+41. Retrieve recommendation data from knowledge graph
+42. Update knowledge graph based on user interactions
+
+---
+
+# Epic 6 – Reservation Management System
+
+43. Retrieve real-time table availability from database
+44. Display available reservation time slots
+45. Allow users to reserve tables through chatbot
+46. Store reservation details in Firebase Firestore
+47. Generate reservation confirmation
+48. Allow users to view reservation details
+49. Allow users to cancel reservations
+50. Update table availability after reservation
+
+---
+
+# Epic 7 – Payment Processing System
+
+51. Allow users to make online payments for reservations
+52. Connect system with secure payment gateway
+53. Process payment transactions securely
+54. Verify payment status
+55. Store payment transaction details
+56. Confirm reservation after successful payment
+
+---
+
+# Epic 8 – Firebase Real-Time Data Management
+
+57. Store restaurant information in Firebase Firestore
+58. Retrieve restaurant data in real time
+59. Store reservation records in Firebase Firestore
+60. Update reservation data dynamically
+
+---
+
+# Epic 9 – Restaurant Provider Management
+
+61. Allow restaurant providers to register their restaurant
+62. Allow providers to update restaurant information
+63. Allow providers to add menu items
+64. Allow providers to update menu items
+65. Allow providers to update table availability
+66. Sync availability data in real time
+
+---
+
+# Epic 10 – Admin Management System
+
+67. Allow admin to view registered users
+68. Allow admin to manage user accounts
+69. Allow admin to approve restaurant registrations
+70. Allow admin to manage restaurant records
+71. Allow admin to monitor system performance
+72. Allow admin to monitor agent activity
+
+---
+
+# Epic 11 – Security and Access Control
+
+73. Allow users to register securely
+74. Allow users to login securely
+75. Implement role-based access control
+76. Protect user data securely
+77. Secure payment information
+
+---
+
+# Epic 12 – Notification System
+
+78. Send reservation confirmation notifications
+79. Send reservation reminder notifications
+80. Notify providers about new reservations
+81. Notify users about reservation status updates
+
+---
+
+# Epic 13 – System Integration and Deployment
+
+82. Integrate chatbot interface with backend services
+83. Integrate AI agents with backend
+84. Deploy backend services
+85. Deploy chatbot interface
+
+---

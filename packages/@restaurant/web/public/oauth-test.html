@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Google OAuth Direct Test</title>
+    <style>
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            max-width: 1000px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            border-radius: 8px;
+            padding: 30px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+        }
+        h1 { color: #333; margin-top: 0; }
+        h2 { color: #666; margin-top: 30px; }
+        .button {
+            display: inline-block;
+            padding: 12px 24px;
+            background: #3B82F6;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-right: 10px;
+            margin-bottom: 10px;
+        }
+        .button:hover { background: #2563EB; }
+        .button.success { background: #10B981; }
+        .button.error { background: #EF4444; }
+        .output {
+            background: #f9f9f9;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            padding: 15px;
+            margin-top: 15px;
+            font-family: 'Monaco', 'Courier', monospace;
+            font-size: 13px;
+            color: #333;
+            max-height: 400px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            word-break: break-all;
+        }
+        .info-box {
+            background: #E3F2FD;
+            border-left: 4px solid #2196F3;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+        }
+        .error-box {
+            background: #FFEBEE;
+            border-left: 4px solid #F44336;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+        }
+        .success-box {
+            background: #E8F5E9;
+            border-left: 4px solid #4CAF50;
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 4px;
+        }
+        .test-section {
+            margin-bottom: 30px;
+            border-bottom: 1px solid #eee;
+            padding-bottom: 20px;
+        }
+        .test-section:last-child {
+            border-bottom: none;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔐 Google OAuth Direct Test</h1>
+        <p>Use this page to directly test your Google OAuth configuration without going through the React app.</p>
+
+        <!-- Config Check -->
+        <div class="test-section">
+            <h2>1️⃣ Check Configuration</h2>
+            <button class="button" onclick="checkConfig()">Check Environment Variables</button>
+            <div class="output" id="configOutput"></div>
+        </div>
+
+        <!-- Generate OAuth URL -->
+        <div class="test-section">
+            <h2>2️⃣ Generate OAuth URL</h2>
+            <button class="button" onclick="generateOAuthUrl()">Generate URL</button>
+            <div class="output" id="urlOutput"></div>
+        </div>
+
+        <!-- Test OAuth Flow -->
+        <div class="test-section">
+            <h2>3️⃣ Start OAuth Flow</h2>
+            <p>This will redirect you to Google to authorize the app.</p>
+            <button class="button success" onclick="startOAuthFlow()">Click to Start OAuth (Will Redirect)</button>
+            <div class="info-box">
+                💡 <strong>Tip:</strong> After Google redirects you back to http://localhost:3000, 
+                check your browser console (F12) for GoogleCallback logs.
+            </div>
+        </div>
+
+        <!-- Parse URL Hash -->
+        <div class="test-section">
+            <h2>4️⃣ Parse Current URL Hash</h2>
+            <p>If you're on the OAuth callback, this will parse the tokens.</p>
+            <button class="button" onclick="parseUrlHash()">Parse URL Hash</button>
+            <div class="output" id="hashOutput"></div>
+        </div>
+
+        <!-- JWT Decoder -->
+        <div class="test-section">
+            <h2>5️⃣ Decode JWT Token</h2>
+            <p>Paste a JWT token below to decode it:</p>
+            <textarea id="jwtInput" style="width:100%;height:100px;font-family:monospace;font-size:12px;margin:10px 0;padding:10px;" placeholder="Paste JWT token here..."></textarea>
+            <button class="button" onclick="decodeJWT()">Decode JWT</button>
+            <div class="output" id="jwtOutput"></div>
+        </div>
+
+        <!-- Session Storage Viewer -->
+        <div class="test-section">
+            <h2>6️⃣ View Session Storage</h2>
+            <p>Check what's stored in browser session during OAuth callback:</p>
+            <button class="button" onclick="viewSessionStorage()">View Session Storage</button>
+            <div class="output" id="sessionOutput"></div>
+        </div>
+
+        <!-- Local Storage Viewer -->
+        <div class="test-section">
+            <h2>7️⃣ View Local Storage (Firebase Tokens)</h2>
+            <p>Check if Firebase tokens are being stored:</p>
+            <button class="button" onclick="viewLocalStorage()">View Local Storage</button>
+            <div class="output" id="localOutput"></div>
+        </div>
+
+        <!-- Clear Storage -->
+        <div class="test-section">
+            <h2>8️⃣ Clear All Storage</h2>
+            <p>Reset all stored data:</p>
+            <button class="button error" onclick="clearAllStorage()">Clear Storage</button>
+            <div class="output" id="clearOutput"></div>
+        </div>
+    </div>
+
+    <script>
+        const log = (msg) => console.log(msg);
+        const output = (id, content) => {
+            document.getElementById(id).textContent = content;
+        };
+
+        function checkConfig() {
+            let result = '🔍 CONFIGURATION CHECK\n';
+            result += '='.repeat(50) + '\n\n';
+
+            // Try to read from environment
+            result += '⚠️  Note: Environment variables are not accessible from static HTML.\n';
+            result += 'Run this from the React app DevTools console instead:\n\n';
+            result += `const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
+console.log('Google Client ID:', clientId);`;
+
+            result += '\n\n✅ But we can check localStorage:\n\n';
+            const firebaseApiKey = localStorage.getItem('VITE_FIREBASE_API_KEY');
+            const firebaseUid = localStorage.getItem('firebaseUid');
+            const firebaseAuth = localStorage.getItem('firebaseAuthToken');
+
+            result += `Firebase Auth Token: ${firebaseAuth ? '✅ SET' : '❌ MISSING'}\n`;
+            result += `Firebase UID: ${firebaseUid ? '✅ SET' : '❌ MISSING'} (${firebaseUid || 'N/A'})\n`;
+
+            output('configOutput', result);
+        }
+
+        function generateOAuthUrl() {
+            let result = '🔐 OAUTH URL GENERATION\n';
+            result += '='.repeat(50) + '\n\n';
+
+            const clientId = 'YOUR_CLIENT_ID_HERE';  // Will be replaced by user
+            const redirectUri = window.location.origin;
+            const nonce = Math.random().toString(36).substring(2, 15);
+
+            const params = new URLSearchParams({
+                client_id: clientId,
+                redirect_uri: redirectUri,
+                response_type: 'id_token token',
+                scope: 'openid email profile',
+                nonce: nonce,
+            });
+
+            const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?${params.toString()}`;
+
+            result += `Client ID: ${clientId}\n`;
+            result += `Redirect URI: ${redirectUri}\n`;
+            result += `Scope: openid email profile\n\n`;
+            result += `Generated URL:\n${authUrl}`;
+
+            output('urlOutput', result);
+        }
+
+        function startOAuthFlow() {
+            log('Starting OAuth flow...');
+            alert('❌ This static test page cannot access your client ID.\n\nTo test properly:\n1. Go to http://localhost:3000\n2. Click "Sign in with Google"\n3. Complete the OAuth flow\n4. Check browser console for logs');
+        }
+
+        function parseUrlHash() {
+            let result = '📍 URL HASH PARSER\n';
+            result += '='.repeat(50) + '\n\n';
+
+            const hash = window.location.hash.substring(1);
+            
+            if (!hash) {
+                result += '❌ No hash in URL\n';
+                result += 'This page is for testing the OAuth callback.\n';
+                result += 'Current URL: ' + window.location.href + '\n\n';
+                result += 'To test:\n';
+                result += '1. Complete OAuth flow on http://localhost:3000\n';
+                result += '2. After redirect, come back to this page\n';
+                result += '3. Click "Parse URL Hash" again';
+                output('hashOutput', result);
+                return;
+            }
+
+            result += `✅ Hash found (${hash.length} chars)\n\n`;
+
+            const params = new URLSearchParams(hash);
+            const idToken = params.get('id_token');
+            const accessToken = params.get('access_token');
+            const error = params.get('error');
+
+            if (error) {
+                result += `❌ OAuth Error: ${error}\n`;
+                result += `Description: ${params.get('error_description') || 'N/A'}\n`;
+            } else {
+                result += `id_token: ${idToken ? '✅ Present (' + (idToken?.length || 0) + ' chars)' : '❌ Missing'}\n`;
+                result += `access_token: ${accessToken ? '✅ Present (' + (accessToken?.length || 0) + ' chars)' : '❌ Missing'}\n\n`;
+                
+                if (idToken) {
+                    result += 'JWT Token (first 100 chars):\n';
+                    result += idToken.substring(0, 100) + '...\n';
+                }
+            }
+
+            output('hashOutput', result);
+        }
+
+        function decodeJWT() {
+            let result = '🔓 JWT DECODER\n';
+            result += '='.repeat(50) + '\n\n';
+
+            const jwt = document.getElementById('jwtInput').value.trim();
+            
+            if (!jwt) {
+                result += '❌ Paste a JWT token first';
+                output('jwtOutput', result);
+                return;
+            }
+
+            try {
+                const parts = jwt.split('.');
+                if (parts.length !== 3) {
+                    throw new Error('Invalid JWT: must have 3 parts (header.payload.signature)');
+                }
+
+                // Decode header
+                const header = JSON.parse(atob(parts[0]));
+                result += 'HEADER:\n' + JSON.stringify(header, null, 2) + '\n\n';
+
+                // Decode payload
+                const padding = 4 - (parts[1].length % 4);
+                const paddedPayload = parts[1] + '='.repeat(padding === 4 ? 0 : padding);
+                const payload = JSON.parse(atob(paddedPayload));
+                result += 'PAYLOAD:\n' + JSON.stringify(payload, null, 2) + '\n\n';
+
+                result += '✅ JWT is valid!';
+            } catch (error) {
+                result += `❌ Error: ${error.message}`;
+            }
+
+            output('jwtOutput', result);
+        }
+
+        function viewSessionStorage() {
+            let result = '📦 SESSION STORAGE\n';
+            result += '='.repeat(50) + '\n\n';
+
+            const keys = ['google_id_token', 'google_access_token', 'google_email', 'google_name'];
+            let hasData = false;
+
+            for (const key of keys) {
+                const value = sessionStorage.getItem(key);
+                if (value) {
+                    hasData = true;
+                    if (key.includes('token')) {
+                        result += `${key}: ✅ SET (${value.length} chars)\n`;
+                    } else {
+                        result += `${key}: ${value}\n`;
+                    }
+                } else {
+                    result += `${key}: ❌ MISSING\n`;
+                }
+            }
+
+            if (!hasData) {
+                result += '\n📝 Note: Session storage is empty during OAuth callback.\n';
+                result += 'This is expected - tokens are only stored temporarily.';
+            }
+
+            output('sessionOutput', result);
+        }
+
+        function viewLocalStorage() {
+            let result = '💾 LOCAL STORAGE (Firebase Tokens)\n';
+            result += '='.repeat(50) + '\n\n';
+
+            const keys = ['firebaseAuthToken', 'firebaseRefreshToken', 'firebaseUid'];
+            
+            for (const key of keys) {
+                const value = localStorage.getItem(key);
+                if (value) {
+                    if (key === 'firebaseAuthToken') {
+                        result += `${key}: ✅ SET (${value.length} chars)\n`;
+                    } else if (key === 'firebaseRefreshToken') {
+                        result += `${key}: ✅ SET (${value.length} chars)\n`;
+                    } else {
+                        result += `${key}: ${value}\n`;
+                    }
+                } else {
+                    result += `${key}: ❌ MISSING\n`;
+                }
+            }
+
+            result += '\n✅ If these are present, Firebase login was successful!';
+            output('localOutput', result);
+        }
+
+        function clearAllStorage() {
+            const sessionKeys = ['google_id_token', 'google_access_token', 'google_email', 'google_name'];
+            const localKeys = ['firebaseAuthToken', 'firebaseRefreshToken', 'firebaseUid', 'user'];
+
+            sessionKeys.forEach(key => sessionStorage.removeItem(key));
+            localKeys.forEach(key => localStorage.removeItem(key));
+
+            output('clearOutput', '✅ All storage cleared!\n\nSession Storage: Cleared\nLocal Storage: Cleared\n\nYou can now try logging in again.');
+        }
+
+        // Auto-check on load
+        window.addEventListener('load', () => {
+            log('🔍 Page loaded - run checkConfig() to start');
+        });
+    </script>
+</body>
+</html>

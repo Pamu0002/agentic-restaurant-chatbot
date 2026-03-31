@@ -1,9 +1,0 @@
-{
-  "name": "@agentic-restaurant/shared-types",
-  "version": "1.0.0",
-  "description": "Shared TypeScript types",
-  "private": true,
-  "exports": {
-    ".": "./index.ts"
-  }
-}

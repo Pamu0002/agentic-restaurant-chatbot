@@ -3,15 +3,17 @@
   "version": "1.0.0",
   "description": "Agentic Restaurant Chatbot Platform - Unified conversational AI for restaurant discovery, booking, and payments",
   "private": true,
-  "workspaces": [
-    "apps/*",
-    "packages/*"
-  ],
+  "packageManager": "pnpm@8.0.0",
   "scripts": {
-    "dev": "npm run dev --workspaces",
-    "build": "npm run build --workspaces",
-    "test": "npm run test --workspaces",
-    "lint": "npm run lint --workspaces",
+    "dev": "pnpm --recursive run dev",
+    "build": "pnpm --recursive run build",
+    "test": "pnpm --recursive run test",
+    "lint": "pnpm --recursive run lint",
+    "web:dev": "pnpm -F @restaurant/web dev",
+    "web:build": "pnpm -F @restaurant/web build",
+    "mobile:dev": "pnpm -F @restaurant/mobile start",
+    "api:dev": "pnpm -F @restaurant/api dev",
+    "ai:dev": "pnpm -F @restaurant/ai dev",
     "docker:up": "docker-compose up -d",
     "docker:down": "docker-compose down",
     "docker:logs": "docker-compose logs -f"
@@ -21,7 +23,7 @@
     "restaurant",
     "booking",
     "AI",
-    "microservices"
+    "monorepo"
   ],
   "author": "Your Name",
   "license": "MIT"

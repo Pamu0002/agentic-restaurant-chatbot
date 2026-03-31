@@ -1,0 +1,35 @@
+{
+  "name": "@restaurant/shared",
+  "version": "1.0.0",
+  "description": "Shared types, utils, and components across web and mobile apps",
+  "type": "module",
+  "main": "dist/index.js",
+  "module": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": "./dist/index.js",
+    "./types": "./dist/types.js",
+    "./services": "./dist/services.js",
+    "./utils": "./dist/utils.js",
+    "./contexts": "./dist/contexts.js"
+  },
+  "scripts": {
+    "build": "tsc",
+    "dev": "tsc --watch",
+    "clean": "rm -rf dist"
+  },
+  "keywords": [
+    "restaurant",
+    "shared",
+    "types"
+  ],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "axios": "^1.6.0"
+  },
+  "devDependencies": {
+    "@types/node": "^20.0.0",
+    "typescript": "^5.3.3"
+  }
+}
