@@ -19,12 +19,13 @@ import {
     signup,
     updateProfile,
     verifyEmail,
+    verifyToken,
 } from '../controllers/authController';
 import {
     authenticateToken,
     rateLimitByUser,
     securityHeaders
-} from '../middleware/authMiddleware';
+} from '../controllers/middleware/authMiddleware';
 import logger from '../utils/logger';
 
 const router = Router();
@@ -90,6 +91,29 @@ router.post('/signup', async (req, res) => {
 router.post('/signin', async (req, res) => {
   logger.info('POST /api/auth/signin');
   await signin(req, res);
+});
+
+/**
+ * POST /api/auth/verify
+ * Verify authentication token
+ *
+ * Headers:
+ * - Authorization: Bearer <token>
+ *
+ * Response:
+ * {
+ *   success: boolean,
+ *   data: {
+ *     valid: boolean,
+ *     userId: string,
+ *     email: string
+ *   },
+ *   message: string
+ * }
+ */
+router.post('/verify', async (req, res) => {
+  logger.info('POST /api/auth/verify');
+  await verifyToken(req, res);
 });
 
 /**

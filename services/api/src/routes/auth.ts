@@ -3,9 +3,9 @@
  * Complete auth endpoints: signup, login, logout, refresh, google oauth, profile
  */
 
-import { Router, Request, Response } from 'express';
-import { verifyAccessToken, requireRole } from '../middleware/authMiddleware';
-import { authLimiter, passwordResetLimiter } from '../middleware/rateLimiter';
+import { Request, Response, Router } from 'express';
+import { verifyAccessToken } from '../controllers/middleware/authMiddleware';
+import { authLimiter, passwordResetLimiter } from '../controllers/middleware/rateLimiter';
 import AuthService from '../services/AuthService';
 import logger from '../utils/logger';
 
@@ -133,6 +133,8 @@ router.post('/google', authLimiter, async (req: Request, res: Response) => {
 
     res.json({
       success: true,
+      // Return both formats for compatibility
+      sessionToken: result.accessToken,
       data: {
         accessToken: result.accessToken,
         user: result.user,
@@ -353,11 +355,6 @@ router.get('/status', verifyAccessToken, async (req: Request, res: Response) => 
   }
 });
 
-export default router;
-    });
-  }
-});
-
 /**
  * POST /api/auth/verify
  * Verify if session token is valid
@@ -365,7 +362,7 @@ export default router;
  * Request: { sessionToken: string }
  * Response: { valid: boolean, userId?: string, email?: string }
  */
-router.post('/auth/verify', (req: Request, res: Response) => {
+router.post('/verify', (req: Request, res: Response) => {
   try {
     const { sessionToken } = req.body;
 
@@ -376,7 +373,7 @@ router.post('/auth/verify', (req: Request, res: Response) => {
       });
     }
 
-    const verified = verifySessionToken(sessionToken);
+    const verified = AuthService.verifyAccessToken(sessionToken);
 
     if (!verified) {
       return res.status(401).json({
@@ -405,7 +402,7 @@ router.post('/auth/verify', (req: Request, res: Response) => {
  * Request: { sessionToken: string }
  * Response: { success: boolean, sessionToken?: string }
  */
-router.post('/auth/refresh', (req: Request, res: Response) => {
+router.post('/refresh-session', (req: Request, res: Response) => {
   try {
     const { sessionToken } = req.body;
 
@@ -416,7 +413,9 @@ router.post('/auth/refresh', (req: Request, res: Response) => {
       });
     }
 
-    const newToken = refreshSessionToken(sessionToken);
+    // Note: Session token refresh not directly supported. Use refresh endpoint instead.
+    // For now, verify the token is still valid
+    const newToken = AuthService.verifyAccessToken(sessionToken) ? sessionToken : null;
 
     if (!newToken) {
       return res.status(401).json({
@@ -450,7 +449,7 @@ router.get('/auth/status', (req: Request, res: Response) => {
     });
   }
 
-  const verified = verifySessionToken(token);
+  const verified = AuthService.verifyAccessToken(token);
 
   res.json({
     authenticated: !!verified,

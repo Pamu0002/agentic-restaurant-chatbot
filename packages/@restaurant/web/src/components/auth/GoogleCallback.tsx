@@ -5,9 +5,8 @@
  * Extracts the ID token and sends to backend for verification
  */
 
+import { signInWithGoogle, useAuth } from '@restaurant/shared';
 import { useEffect, useState } from 'react';
-import { useAuth } from '../../contexts/AuthContext';
-import { signInWithGoogle } from '../../services/firebaseService';
 
 interface GoogleCallbackProps {
   onSuccess?: () => void;
@@ -22,13 +21,14 @@ export default function GoogleCallback({ onSuccess, onError }: GoogleCallbackPro
   useEffect(() => {
     const handleCallback = async () => {
       try {
+        console.log('========== GOOGLE CALLBACK STARTED ==========');
+        
         // Get token from URL hash
         const hash = window.location.hash.substring(1);
-        console.log('📍 GoogleCallback: Processing URL hash');
-        console.log('Hash length:', hash.length, 'chars');
+        console.log('📍 Hash from URL:', hash.substring(0, 100) + (hash.length > 100 ? '...' : ''));
         
         if (!hash) {
-          throw new Error('No authentication token in URL. Did you authorize the app?');
+          throw new Error('No token in URL. Did you authorize the app?');
         }
 
         // Parse the hash - Google sends: id_token=...&access_token=...&stuff=...
@@ -38,61 +38,62 @@ export default function GoogleCallback({ onSuccess, onError }: GoogleCallbackPro
         const error = params.get('error');
         const errorDescription = params.get('error_description');
         
-        // Check for Google OAuth errors
-        if (error) {
-          throw new Error(`Google OAuth denied: ${error}${errorDescription ? ' - ' + errorDescription : ''}`);
-        }
-        
-        console.log('📦 Parsed from hash:', { 
+        console.log('📦 Parsed hash params:', { 
           hasIdToken: !!idToken, 
           hasAccessToken: !!accessToken,
+          error: error || 'none',
+          errorDescription: errorDescription || 'none',
         });
+        
+        // Check for Google OAuth errors
+        if (error) {
+          throw new Error(`Google OAuth error: ${error}${errorDescription ? ' - ' + errorDescription : ''}`);
+        }
 
         if (!idToken && !accessToken) {
-          throw new Error('No authentication token found in redirect');
+          throw new Error('No authentication token found in URL');
         }
 
         if (!idToken) {
-          throw new Error('No ID token found in redirect. Make sure you authorized the app.');
+          throw new Error('No ID token found. Authorization may have been incomplete.');
         }
 
-        // Decode the JWT id_token to get user info
-        // JWT structure: header.payload.signature
+        console.log('✅ ID token extracted from URL');
+        console.log('Token length:', idToken.length, 'chars');
+        
+        // Decode the JWT id_token to get user info (for debugging)
         const parts = idToken.split('.');
         if (parts.length !== 3) {
-          throw new Error(`Invalid JWT token format: expected 3 parts, got ${parts.length}`);
+          throw new Error(`Invalid JWT format: expected 3 parts, got ${parts.length}`);
         }
 
-        // Decode the payload (base64)
+        // Decode the payload for logging
         const payload = parts[1];
-        let decoded;
         try {
-          // Add padding if needed
           const padding = 4 - (payload.length % 4);
           const paddedPayload = payload + '='.repeat(padding === 4 ? 0 : padding);
-          decoded = JSON.parse(atob(paddedPayload));
-        } catch (decodeError) {
-          throw new Error(`Failed to decode JWT payload: ${decodeError instanceof Error ? decodeError.message : 'Unknown error'}`);
+          const decoded = JSON.parse(atob(paddedPayload));
+          console.log('✅ JWT Decoded:', { email: decoded.email, name: decoded.name, aud: decoded.aud });
+        } catch (e) {
+          console.warn('⚠️  Could not decode JWT for logging:', e);
         }
         
-        console.log('✅ Decoded JWT:', { email: decoded.email, name: decoded.name });
-        
-        if (!decoded.email) {
-          throw new Error('No email found in Google ID token');
-        }
-        
-        console.log('🔐 Sending token to backend for verification...');
+        console.log('🔐 Sending token to backend...');
         
         // Send the idToken to our backend which will verify it with Google
         const user = await signInWithGoogle(idToken);
         
-        console.log('✅ Backend verified token and created session!');
+        console.log('✅ Backend verified and user created:', user.email);
+        console.log('User object:', user);
         
         // Update AuthContext with the user
         if (loginWithGoogle) {
           try {
+            console.log('📝 Updating AuthContext...');
             await loginWithGoogle(idToken);
+            console.log('✅ AuthContext updated');
           } catch (e) {
+            console.warn('⚠️  AuthContext update failed (this may be OK):', e);
             // The authContext might not need explicit login call
             // since firebaseService.ts now notifies of auth state
           }
@@ -101,18 +102,26 @@ export default function GoogleCallback({ onSuccess, onError }: GoogleCallbackPro
         // Clean up URL hash - remove the token from URL
         window.history.replaceState({}, document.title, window.location.pathname);
         
+        console.log('✅ URL cleaned');
+        console.log('=== WAITING 2 SECONDS FOR AUTH STATE UPDATE ===');
+        
+        // Wait 2 seconds for auth state to propagate through the context
+        await new Promise(resolve => setTimeout(resolve, 2000));
+        
+        console.log('✅ Setting success status');
         setStatus('success');
         
-        // Notify success after a brief delay to let auth state update
-        setTimeout(() => {
-          if (onSuccess) {
-            onSuccess();
-          }
-        }, 1000);
+        // Notify success 
+        console.log('📍 Calling onSuccess callback');
+        if (onSuccess) {
+          onSuccess();
+        }
         
       } catch (error) {
-        const errorMsg = error instanceof Error ? error.message : 'Google callback error';
-        console.error('❌ GoogleCallback Error:', errorMsg, error);
+        const errorMsg = error instanceof Error ? error.message : 'Unknown error during Google callback';
+        console.error('❌ GoogleCallback Error:', errorMsg);
+        console.error('Full error:', error);
+        
         setErrorMsg(errorMsg);
         setStatus('error');
         
@@ -122,7 +131,7 @@ export default function GoogleCallback({ onSuccess, onError }: GoogleCallbackPro
         
         // Offer to go back after error
         setTimeout(() => {
-          const goBack = window.confirm(`Error: ${errorMsg}\n\nGo back and try again?`);
+          const goBack = window.confirm(`Error: ${errorMsg}\n\nClick OK to go back and try again`);
           if (goBack) {
             window.location.href = window.location.origin;
           }
@@ -130,6 +139,7 @@ export default function GoogleCallback({ onSuccess, onError }: GoogleCallbackPro
       }
     };
 
+    console.log('🚀 GoogleCallback useEffect triggered');
     handleCallback();
   }, [loginWithGoogle, onSuccess, onError]);
 

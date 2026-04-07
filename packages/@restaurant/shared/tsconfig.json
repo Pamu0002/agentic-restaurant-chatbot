@@ -14,7 +14,9 @@
     "esModuleInterop": true,
     "skipDefaultLibCheck": true,
     "resolveJsonModule": true,
-    "moduleResolution": "bundler"
+    "moduleResolution": "bundler",
+    "jsx": "react-jsx",
+    "types": ["node", "vite/client"]
   },
   "include": ["src"],
   "exclude": ["node_modules", "dist"]

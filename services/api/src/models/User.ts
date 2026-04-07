@@ -82,7 +82,14 @@ export interface SignUpRequest {
   email: string;
   password: string;
   displayName: string;
+  phone?: string;
   role?: UserRole;
+  preferences?: {
+    cuisine?: string[];
+    priceRange?: string;
+    location?: string;
+    notifications?: boolean;
+  };
 }
 
 /**
@@ -151,6 +158,8 @@ export interface UpdateUserRequest {
   displayName?: string;
   phone?: string;
   address?: string;
+  bio?: string;
+  photoURL?: string;
   preferences?: {
     cuisine?: string[];
     priceRange?: string;

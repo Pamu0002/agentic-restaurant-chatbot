@@ -8,9 +8,8 @@
  * 6. Store User Details Securely in Database
  */
 
+import { initializeGoogleAuth, useAuth } from '@restaurant/shared';
 import { useState } from 'react';
-import { useAuth } from '../../contexts/AuthContext';
-import { initializeGoogleAuth } from '../../services/firebaseService';
 
 interface SignUpProps {
   onBack: () => void;
@@ -51,8 +50,27 @@ export default function SignUp({ onBack, onSignUpSuccess }: SignUpProps) {
 
     if (!formData.password) {
       newErrors.password = 'Password is required';
-    } else if (formData.password.length < 6) {
-      newErrors.password = 'Password must be at least 6 characters';
+    } else {
+      const passwordErrors: string[] = [];
+      if (formData.password.length < 8) {
+        passwordErrors.push('At least 8 characters');
+      }
+      if (!/[a-z]/.test(formData.password)) {
+        passwordErrors.push('Lowercase letters');
+      }
+      if (!/[A-Z]/.test(formData.password)) {
+        passwordErrors.push('Uppercase letters');
+      }
+      if (!/\d/.test(formData.password)) {
+        passwordErrors.push('Numbers');
+      }
+      if (!/[@$!%*?&]/.test(formData.password)) {
+        passwordErrors.push('Special characters (@$!%*?&)');
+      }
+      
+      if (passwordErrors.length > 0) {
+        newErrors.password = `Password must include: ${passwordErrors.join(', ')}`;
+      }
     }
 
     if (formData.password !== formData.confirmPassword) {

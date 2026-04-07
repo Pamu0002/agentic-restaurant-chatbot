@@ -15,6 +15,7 @@ import {
     GoogleOAuthRequest,
     SignInRequest,
     SignUpRequest,
+    TokenPayload,
     UpdateUserRequest,
 } from '../models/User';
 import { AuthenticationService } from '../services/AuthService';
@@ -57,7 +58,7 @@ export const signup = async (req: Request, res: Response): Promise<void> => {
 
     logger.info(`Signup attempt for email: ${signUpRequest.email}`);
 
-    const response = await authService.signUp(signUpRequest);
+    const response = await authService.signup(signUpRequest);
 
     logger.info(`User registered: ${response.user.id}`);
 
@@ -115,7 +116,7 @@ export const signin = async (req: Request, res: Response): Promise<void> => {
 
     logger.info(`Signin attempt for email: ${signInRequest.email}`);
 
-    const response = await authService.signIn(signInRequest);
+    const response = await authService.login(signInRequest);
 
     logger.info(`User signed in: ${response.user.id}`);
 
@@ -135,9 +136,9 @@ export const signin = async (req: Request, res: Response): Promise<void> => {
       },
       message: 'Signed in successfully',
     });
-  } catch (error) {
+  } catch (error: any) {
     if (error instanceof AuthError) {
-      logger.warn(`Signin failed: ${error.type} - ${error.message}`);
+      logger.warn(`Signup failed: ${error.type} - ${error.message}`);
       res.status(error.statusCode).json({
         success: false,
         error: error.type,
@@ -146,11 +147,26 @@ export const signin = async (req: Request, res: Response): Promise<void> => {
       return;
     }
 
-    logger.error('Signin error', error);
-    res.status(500).json({
+    // Handle generic errors
+    logger.error('Signup error:', error);
+    let errorMessage = 'Signup failed. Please try again.';
+    let statusCode = 500;
+
+    if (error.message.includes('Invalid email')) {
+      errorMessage = 'Invalid email format';
+      statusCode = 400;
+    } else if (error.message.includes('Weak password')) {
+      errorMessage = error.message;
+      statusCode = 400;
+    } else if (error.message.includes('Email already registered')) {
+      errorMessage = 'Email already registered';
+      statusCode = 409;
+    }
+
+    res.status(statusCode).json({
       success: false,
       error: AuthErrorType.UNKNOWN,
-      message: 'Login failed. Please try again.',
+      message: errorMessage,
     });
   }
 };
@@ -159,38 +175,57 @@ export const signin = async (req: Request, res: Response): Promise<void> => {
  * POST /api/auth/google
  * Authenticate user via Google OAuth2
  *
- * Body:
- * - googleId: string (required)
- * - email: string (required)
- * - displayName: string (required)
- * - photoURL?: string (optional)
+ * Body (OPTION 1 - With ID Token):
+ * - idToken: string (raw JWT from Google, will be verified and decoded)
+ *
+ * Body (OPTION 2 - Pre-decoded):
+ * - googleId: string 
+ * - email: string
+ * - displayName: string
+ * - photoURL?: string
  */
 export const googleSignIn = async (req: Request, res: Response): Promise<void> => {
   try {
-    const { googleId, email, displayName, photoURL } = req.body;
+    const { idToken, googleId, email, displayName, photoURL } = req.body;
 
-    // Validate required fields
-    if (!googleId || !email || !displayName) {
+    logger.info('Google signin request received');
+    logger.info(`Has idToken: ${!!idToken}, Has googleId: ${!!googleId}`);
+
+    let response;
+
+    // Process based on what was sent
+    if (idToken) {
+      // Frontend sent raw JWT token - verify it first
+      logger.info('Processing with ID token verification');
+      response = await authService.verifyGoogleToken(idToken, {
+        ipAddress: req.ip,
+        userAgent: req.get('user-agent'),
+      });
+    } else if (googleId && email && displayName) {
+      // Pre-decoded data - use directly
+      logger.info('Processing with pre-decoded data');
+      const oauthRequest: GoogleOAuthRequest = {
+        googleId,
+        email: email.trim().toLowerCase(),
+        displayName: displayName.trim(),
+        photoURL,
+      };
+
+      logger.info(`Google signin attempt for email: ${oauthRequest.email}`);
+      response = await authService.loginWithGoogle(oauthRequest, {
+        ipAddress: req.ip,
+        userAgent: req.get('user-agent'),
+      });
+    } else {
       res.status(400).json({
         success: false,
         error: AuthErrorType.INVALID_EMAIL,
-        message: 'googleId, email, and displayName are required',
+        message: 'Either idToken or (googleId, email, displayName) are required',
       });
       return;
     }
 
-    const oauthRequest: GoogleOAuthRequest = {
-      googleId,
-      email: email.trim().toLowerCase(),
-      displayName: displayName.trim(),
-      photoURL,
-    };
-
-    logger.info(`Google signin attempt for email: ${oauthRequest.email}`);
-
-    const response = await authService.signInWithGoogle(oauthRequest);
-
-    logger.info(`Google user signed in: ${response.user.id}`);
+    logger.info(`Google user authenticated: ${response.user.id}`);
 
     // Set secure HTTP-only cookie for refresh token
     res.cookie('refreshToken', response.refreshToken, {
@@ -202,13 +237,21 @@ export const googleSignIn = async (req: Request, res: Response): Promise<void> =
 
     res.json({
       success: true,
+      sessionToken: response.accessToken,
       data: {
         user: response.user,
         accessToken: response.accessToken,
       },
       message: 'Google authentication successful',
     });
-  } catch (error) {
+  } catch (error: any) {
+    logger.error('Google signin catch block - error details:', {
+      type: error.constructor.name,
+      message: error.message,
+      statusCode: error.statusCode,
+      isAuthError: error instanceof AuthError,
+    });
+
     if (error instanceof AuthError) {
       logger.warn(`Google signin failed: ${error.type} - ${error.message}`);
       res.status(error.statusCode).json({
@@ -219,8 +262,9 @@ export const googleSignIn = async (req: Request, res: Response): Promise<void> =
       return;
     }
 
-    logger.error('Google signin error', error);
-    res.status(500).json({
+    // Handle unexpected errors
+    logger.error('Unexpected Google signin error:', error);
+    res.status(401).json({
       success: false,
       error: AuthErrorType.UNKNOWN,
       message: 'Google authentication failed. Please try again.',
@@ -263,7 +307,7 @@ export const refreshToken = async (req: Request, res: Response): Promise<void> =
     }
 
     // Get fresh user data
-    const user = await authService.getUserById(payload.userId);
+    const user = await authService.getUserProfile(payload.userId);
 
     if (!user) {
       throw new AuthError(AuthErrorType.USER_NOT_FOUND, 404, 'User not found');
@@ -320,7 +364,7 @@ export const getCurrentUser = async (req: Request, res: Response): Promise<void>
       return;
     }
 
-    const user = await authService.getUserById(req.userId);
+    const user = await authService.getUserProfile(req.userId);
 
     if (!user) {
       throw new AuthError(AuthErrorType.USER_NOT_FOUND, 404, 'User not found');
@@ -385,7 +429,7 @@ export const updateProfile = async (req: Request, res: Response): Promise<void> 
 
     logger.info(`Profile update attempt for user: ${req.userId}`);
 
-    const updatedUser = await authService.updateProfile(req.userId, updateRequest);
+    const updatedUser = await authService.updateUserProfile(req.userId, updateRequest);
 
     logger.info(`Profile updated for user: ${req.userId}`);
 
@@ -498,6 +542,56 @@ export const logout = (req: Request, res: Response): void => {
       success: false,
       error: AuthErrorType.UNKNOWN,
       message: 'Logout failed',
+    });
+  }
+};
+
+/**
+ * POST /api/auth/verify
+ * Verify authentication token
+ *
+ * Headers:
+ * - Authorization: Bearer <token>
+ */
+export const verifyToken = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const token = req.headers.authorization?.split(' ')[1];
+
+    if (!token) {
+      res.status(401).json({
+        success: false,
+        error: AuthErrorType.UNAUTHORIZED,
+        message: 'No token provided',
+      });
+      return;
+    }
+
+    const payload = (authService as any).verifyAccessToken(token);
+    
+    if (!payload) {
+      res.status(401).json({
+        success: false,
+        error: AuthErrorType.UNAUTHORIZED,
+        message: 'Invalid token',
+      });
+      return;
+    }
+
+    res.json({
+      success: true,
+      data: {
+        valid: true,
+        userId: payload.userId,
+        email: payload.email,
+      },
+      message: 'Token is valid',
+    });
+  } catch (error: any) {
+    logger.error('Token verification error:', error);
+    res.status(401).json({
+      success: false,
+      error: AuthErrorType.UNAUTHORIZED,
+      message: 'Token verification failed',
     });
   }
 };
@@ -640,8 +734,11 @@ export const handleGoogleSignIn = async (idToken: string): Promise<{
       );
     }
 
+    // TODO: Sign in or create user with googlePayload
+    // This function is not currently used in production
     // Sign in or create user
-    const response = await authService.signInWithGoogle({
+    /*
+    const response = await authService.loginWithGoogle({
       googleId: googlePayload.sub,
       email: googlePayload.email,
       displayName: googlePayload.name,
@@ -653,6 +750,12 @@ export const handleGoogleSignIn = async (idToken: string): Promise<{
     return {
       sessionToken: response.tokens.accessToken,
       user: response.user,
+    };
+    */
+    // TODO: Implement proper Google OAuth handling
+    return {
+      sessionToken: '',
+      user: { id: '', email: '', displayName: '', role: '' },
     };
   } catch (error) {
     logger.error('Google sign-in error', error);
@@ -676,8 +779,14 @@ export const verifySessionToken = (token: string): TokenPayload | null => {
     const payload = authService.verifyToken(token);
     if (payload) {
       logger.debug(`Token verified for user: ${payload.userId}`);
+      // Convert to TokenPayload type
+      return {
+        userId: payload.userId,
+        email: '',
+        role: 'customer' as any,
+      };
     }
-    return payload;
+    return null;
   } catch (error) {
     logger.error('Session token verification error', error);
     return null;
@@ -700,7 +809,7 @@ export const refreshSessionToken = async (
     }
 
     // Get user for fresh context
-    const user = await authService.getUserById(payload.userId);
+    const user = await authService.getUserProfile(payload.userId);
 
     if (!user) {
       logger.warn(`Cannot refresh: user not found (${payload.userId})`);

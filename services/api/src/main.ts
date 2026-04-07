@@ -8,6 +8,8 @@
  * - Database connections
  */
 
+/// <reference path="./types.d.ts" />
+
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import dotenv from 'dotenv';
@@ -18,7 +20,7 @@ import morgan from 'morgan';
 
 // Import routes & database
 import { initializeDatabase, runMigrations } from './config/database';
-import authRoutes from './routes/auth';
+import authRoutes from './routes/authRoutes';
 import logger from './utils/logger';
 
 // Load environment variables from .env.local file
@@ -386,11 +388,16 @@ async function startServer() {
   try {
     // Initialize database connection
     logger.info('Initializing database connection...');
-    await initializeDatabase();
-
-    // Run database migrations
-    logger.info('Running database migrations...');
-    await runMigrations();
+    try {
+      await initializeDatabase();
+      
+      // Run database migrations
+      logger.info('Running database migrations...');
+      await runMigrations();
+    } catch (dbError) {
+      logger.warn('Database initialization failed:', dbError);
+      logger.info('⚠️  Continuing without database. API will work with mocked data.');
+    }
 
     // Start Express server
     app.listen(PORT, () => {

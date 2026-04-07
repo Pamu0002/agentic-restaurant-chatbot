@@ -7,11 +7,11 @@
  */
 
 import axios from 'axios';
-import { User, AuthStateListener } from '../types/auth';
+import { AuthStateListener, User } from '../types/auth';
 
-// API configuration
+// API configuration - Always point to backend port 5000 in development
 const API_URL = typeof window !== 'undefined' 
-  ? `${window.location.origin}/api`
+  ? 'http://localhost:5000/api'
   : (import.meta.env.VITE_API_URL as string) || 'http://localhost:5000/api';
 
 let currentUser: User | null = null;
@@ -26,46 +26,89 @@ let authUnsubscribers: Array<AuthStateListener> = [];
  */
 export const signInWithGoogle = async (googleIdToken: string): Promise<User> => {
   try {
-    console.log('🔐 Sending token to backend for verification...');
+    console.log('🔐 [signInWithGoogle] Starting Google sign-in');
+    console.log('API URL:', API_URL);
+    console.log('Token length:', googleIdToken.length);
     
     // Send token to our backend for verification
+    console.log('📤 POSTing to /auth/google endpoint...');
     const response = await axios.post(`${API_URL}/auth/google`, {
       idToken: googleIdToken,
     }, {
       withCredentials: true, // Include cookies
+      timeout: 10000, // 10 second timeout
     });
 
+    console.log('✅ Got response from backend');
+    console.log('Response status:', response.status);
+    console.log('Response data keys:', Object.keys(response.data));
+
     if (!response.data.success) {
-      throw new Error(response.data.error || 'Sign-in failed');
+      const errorMsg = response.data.message || response.data.error || 'Backend said: not success';
+      console.error('❌ Backend returned success: false -', errorMsg);
+      throw new Error(errorMsg);
     }
 
-    console.log('✅ Backend verified token, received session');
+    console.log('✅ Backend confirmed success: true');
     
-    const { sessionToken: token, user } = response.data;
+    // Extract token and user data from response
+    // Backend returns: { success: true, sessionToken, data: { accessToken, user } }
+    const sessionTokenFromResponse = response.data.sessionToken;
+    const dataFromResponse = response.data.data;
+    
+    console.log('sessionToken from response:', !!sessionTokenFromResponse);
+    console.log('data from response:', !!dataFromResponse);
+    
+    if (!dataFromResponse || !dataFromResponse.user) {
+      console.error('❌ Response missing data or user:', dataFromResponse);
+      throw new Error('Backend response missing user data');
+    }
+    
+    const userFromResponse = dataFromResponse.user;
+    console.log('✅ User from backend:', { id: userFromResponse.id, email: userFromResponse.email });
 
     // Store session token
+    console.log('💾 Storing session token in localStorage...');
     if (typeof localStorage !== 'undefined') {
-      localStorage.setItem('sessionToken', token);
+      localStorage.setItem('sessionToken', sessionTokenFromResponse);
+      console.log('✅ Session token stored');
     }
-    sessionToken = token;
+    sessionToken = sessionTokenFromResponse;
 
     // Update current user
     const fullUser: User = {
-      uid: user.id,
-      email: user.email,
-      displayName: user.name,
-      photoURL: user.picture,
+      uid: userFromResponse.id || userFromResponse.uid,
+      email: userFromResponse.email,
+      displayName: userFromResponse.displayName || userFromResponse.name || 'User',
+      photoURL: userFromResponse.photoURL || userFromResponse.picture,
     };
 
+    console.log('📝 Setting current user and notifying listeners...');
     currentUser = fullUser;
     notifyAuthStateChange(fullUser);
 
-    console.log('✅ Google sign-in successful!');
+    console.log('✅ Google sign-in COMPLETE!');
     return fullUser;
 
   } catch (error: any) {
-    const msg = error.response?.data?.error || error.message || 'Google sign-in failed';
-    console.error('❌ Error:', msg);
+    console.error('❌ [signInWithGoogle] FAILED:');
+    console.error('Error type:', error.constructor.name);
+    console.error('Error message:', error.message);
+    
+    if (error.response) {
+      console.error('Response status:', error.response.status);
+      console.error('Response data:', error.response.data);
+    } else if (error.request) {
+      console.error('No response received. Request:', error.request);
+    } else {
+      console.error('Error:', error);
+    }
+    
+    const msg = error.response?.data?.message 
+      || error.response?.data?.error 
+      || error.message 
+      || 'Google sign-in failed';
+    
     throw new Error(msg);
   }
 };
@@ -75,7 +118,7 @@ export const signInWithGoogle = async (googleIdToken: string): Promise<User> => 
  * Generate Google OAuth URL
  */
 export const initializeGoogleAuth = (): string => {
-  const googleClientId = (typeof import !== 'undefined' && import.meta?.env?.VITE_GOOGLE_CLIENT_ID) as string || '';
+  const googleClientId = import.meta.env.VITE_GOOGLE_CLIENT_ID as string || '';
   
   if (!googleClientId) {
     throw new Error('Google Client ID is not configured. Check VITE_GOOGLE_CLIENT_ID in .env.local');
@@ -215,26 +258,107 @@ export const getCurrentUser = (): User | null => {
 };
 
 /**
- * Sign in with email and password (optional)
- * Not implemented yet - use Google sign-in instead
+ * Sign in with email and password
  */
 export const signInWithEmail = async (
   email: string,
   password: string
 ): Promise<User> => {
-  throw new Error('Email authentication not yet implemented. Use Google sign-in instead.');
+  try {
+    console.log('🔐 [signInWithEmail] Starting email sign-in');
+    
+    const API_URL = typeof window !== 'undefined' ? 'http://localhost:5000/api' : process.env.REACT_APP_API_URL || '';
+    
+    const response = await axios.post(
+      `${API_URL}/auth/signin`,
+      {
+        email: email.toLowerCase(),
+        password,
+      },
+      {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        withCredentials: true,
+      }
+    );
+
+    console.log('✅ Email sign-in successful');
+    
+    if (response.data.success && response.data.data) {
+      const userData: User = {
+        uid: response.data.data.user.id || response.data.data.user.uid,
+        email: response.data.data.user.email,
+        displayName: response.data.data.user.displayName,
+        photoURL: response.data.data.user.photoURL,
+      };
+
+      // Store token
+      if (response.data.data.accessToken) {
+        localStorage.setItem('sessionToken', response.data.data.accessToken);
+      }
+
+      return userData;
+    }
+
+    throw new Error(response.data.message || 'Email sign-in failed');
+  } catch (error: any) {
+    console.error('❌ Email sign-in failed:', error);
+    throw new Error(error.response?.data?.message || error.message || 'Email sign-in failed');
+  }
 };
 
 /**
- * Sign up with email and password (optional)
- * Not implemented yet - use Google sign-in instead
+ * Sign up with email and password
  */
 export const signUpWithEmail = async (
   email: string,
   password: string,
   name: string
 ): Promise<User> => {
-  throw new Error('Email registration not yet implemented. Use Google sign-in instead.');
+  try {
+    console.log('📝 [signUpWithEmail] Starting email sign-up');
+    
+    const API_URL = typeof window !== 'undefined' ? 'http://localhost:5000/api' : process.env.REACT_APP_API_URL || '';
+    
+    const response = await axios.post(
+      `${API_URL}/auth/signup`,
+      {
+        email: email.toLowerCase(),
+        password,
+        displayName: name,
+      },
+      {
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        withCredentials: true,
+      }
+    );
+
+    console.log('✅ Email sign-up successful');
+    
+    if (response.data.success && response.data.data) {
+      const userData: User = {
+        uid: response.data.data.user.id || response.data.data.user.uid,
+        email: response.data.data.user.email,
+        displayName: response.data.data.user.displayName,
+        photoURL: response.data.data.user.photoURL,
+      };
+
+      // Store token
+      if (response.data.data.accessToken) {
+        localStorage.setItem('sessionToken', response.data.data.accessToken);
+      }
+
+      return userData;
+    }
+
+    throw new Error(response.data.message || 'Email sign-up failed');
+  } catch (error: any) {
+    console.error('❌ Email sign-up failed:', error);
+    throw new Error(error.response?.data?.message || error.message || 'Email sign-up failed');
+  }
 };
 
 /**
@@ -289,7 +413,7 @@ export const refreshAuthToken = async (): Promise<string | null> => {
 
     sessionToken = response.data.sessionToken;
 
-    if (typeof localStorage !== 'undefined') {
+    if (typeof localStorage !== 'undefined' && sessionToken) {
       localStorage.setItem('sessionToken', sessionToken);
     }
 

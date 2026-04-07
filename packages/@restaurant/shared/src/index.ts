@@ -6,5 +6,5 @@ export * from './services/firebaseService';
 
 // Export all shared contexts
 export { AuthProvider, useAuth } from './contexts/AuthContext';
-export type { AuthContextType, User } from './contexts/AuthContext';
+export type { AuthContextType } from './contexts/AuthContext';
 

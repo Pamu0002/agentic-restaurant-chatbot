@@ -5,6 +5,7 @@
  * Routes between Welcome Screen, SignUp, SignIn, and Chat Interface
  */
 
+import { AuthProvider, useAuth } from '@restaurant/shared';
 import { useEffect, useState } from 'react';
 import ChatInterface from './components/ChatInterface';
 import UserSidebar from './components/UserSidebar';
@@ -13,7 +14,6 @@ import SignIn from './components/auth/SignIn';
 import SignUp from './components/auth/SignUp';
 import UserProfile from './components/auth/UserProfile';
 import WelcomeScreen from './components/auth/WelcomeScreen';
-import { AuthProvider, useAuth } from './contexts/AuthContext';
 import './index.css';
 
 type AuthScreen = 'welcome' | 'signin' | 'signup' | 'google-callback';
@@ -46,14 +46,17 @@ function AppContent() {
     }
 
     console.log('ℹ️ No OAuth hash detected');
-    
-    const savedUser = localStorage.getItem('user');
-    if (savedUser && isAuthenticated) {
-      console.log('👤 User already authenticated, going to welcome');
-      setAuthScreen('welcome');
+    console.log('isAuthenticated at mount:', isAuthenticated);
+  }, [isAuthenticated]);
+
+  // Monitor authentication changes
+  useEffect(() => {
+    console.log('🔄 isAuthenticated changed:', isAuthenticated);
+    if (isAuthenticated && authScreen === 'google-callback') {
+      console.log('✅ User authenticated! Clearing google-callback screen');
+      // Don't change authScreen - let the main render handle it
     }
-    // Dependency array is empty so this runs ONCE on mount
-  }, []);
+  }, [isAuthenticated]);
 
   // ============================================
   // HANDLERS
@@ -65,6 +68,28 @@ function AppContent() {
     setSidebarOpen(false);
     setProfileOpen(false);
   };
+
+  // ============================================
+  // RENDER: HANDLE GOOGLE CALLBACK FIRST
+  // ============================================
+
+  // Always show GoogleCallback component when processing OAuth
+  if (authScreen === 'google-callback' && !isAuthenticated) {
+    return (
+      <GoogleCallback 
+        onSuccess={() => {
+          console.log('✅ GoogleCallback onSuccess called');
+          console.log('Current isAuthenticated:', isAuthenticated);
+          // Don't set authScreen - wait for isAuthenticated to update
+          // The useEffect will trigger when auth state changes
+        }}
+        onError={() => {
+          console.error('❌ GoogleCallback onError called');
+          setAuthScreen('signin');
+        }}
+      />
+    );
+  }
 
   // ============================================
   // RENDER: AUTHENTICATION SCREENS
@@ -97,19 +122,6 @@ function AppContent() {
             onSignUpSuccess={() => {
               setAuthScreen('welcome');
               // User will be authenticated after this
-            }}
-          />
-        )}
-
-        {authScreen === 'google-callback' && (
-          <GoogleCallback 
-            onSuccess={() => {
-              // Logout and go back to signin to complete the flow
-              setAuthScreen('welcome');
-            }}
-            onError={() => {
-              // Go back to signin on error
-              setAuthScreen('signin');
             }}
           />
         )}

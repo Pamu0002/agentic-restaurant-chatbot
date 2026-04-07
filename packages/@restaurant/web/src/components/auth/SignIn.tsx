@@ -8,9 +8,8 @@
  * 10. Validate User Credentials before Login
  */
 
+import { initializeGoogleAuth, useAuth } from '@restaurant/shared';
 import { useState } from 'react';
-import { useAuth } from '../../contexts/AuthContext';
-import { initializeGoogleAuth } from '../../services/firebaseService';
 
 interface SignInProps {
   onBack: () => void;

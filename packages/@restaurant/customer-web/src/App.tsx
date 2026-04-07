@@ -7,26 +7,69 @@ import { Navigate, Route, BrowserRouter as Router, Routes } from 'react-router-d
 // import SearchPage from './pages/SearchPage';
 
 export default function App() {
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, user } = useAuth();
 
   return (
     <Router>
-      <Routes>
-        {/* Public Routes */}
-        <Route path="/" element={<div>Customer Home (TODO)</div>} />
+      <div style={{ padding: '20px', fontFamily: 'Arial, sans-serif' }}>
+        <Routes>
+          {/* Public Routes */}
+          <Route 
+            path="/" 
+            element={
+              <div>
+                <h1>🍽️ Restaurant Reservation App</h1>
+                <p>Welcome to the Customer Portal</p>
+                {user && <p>Hello, {user.displayName}!</p>}
+                {!isAuthenticated && <p>Please sign in to continue</p>}
+                <h2>Features (Coming Soon):</h2>
+                <ul>
+                  <li>Search Restaurants</li>
+                  <li>Make Reservations</li>
+                  <li>Chat with AI Assistant</li>
+                  <li>View Your Bookings</li>
+                </ul>
+              </div>
+            } 
+          />
 
-        {/* Protected Routes */}
-        {isAuthenticated && (
-          <>
-            <Route path="/search" element={<div>Search Restaurants (TODO)</div>} />
-            <Route path="/reservations" element={<div>My Reservations (TODO)</div>} />
-            <Route path="/chat" element={<div>Chat with AI (TODO)</div>} />
-          </>
-        )}
+          {/* Protected Routes */}
+          {isAuthenticated && (
+            <>
+              <Route 
+                path="/search" 
+                element={
+                  <div>
+                    <h1>🔍 Search Restaurants</h1>
+                    <p>Search Restaurants (TODO)</p>
+                  </div>
+                } 
+              />
+              <Route 
+                path="/reservations" 
+                element={
+                  <div>
+                    <h1>📅 My Reservations</h1>
+                    <p>My Reservations (TODO)</p>
+                  </div>
+                } 
+              />
+              <Route 
+                path="/chat" 
+                element={
+                  <div>
+                    <h1>💬 AI Dining Assistant</h1>
+                    <p>Chat with AI (TODO)</p>
+                  </div>
+                } 
+              />
+            </>
+          )}
 
-        {/* Fallback */}
-        <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
+          {/* Fallback */}
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </div>
     </Router>
   );
 }

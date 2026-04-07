@@ -1,11 +1,12 @@
 /**
  * SESSION REPOSITORY
- * Data access layer for session/refresh token operations - Firestore
+ * Data access layer for session/refresh token operations - Firestore with fallback
  */
 
 import { Timestamp } from 'firebase-admin/firestore';
 import { v4 as uuidv4 } from 'uuid';
 import { getDb } from '../config/database';
+import logger from '../utils/logger';
 
 export interface Session {
   id: string;
@@ -17,6 +18,9 @@ export interface Session {
   createdAt: Date;
   revokedAt?: Date;
 }
+
+// Simple in-memory session store as final fallback
+const fallbackSessionStore = new Map<string, Session>();
 
 export class SessionRepository {
   private collectionName = 'sessions';
@@ -31,23 +35,43 @@ export class SessionRepository {
     ipAddress?: string;
     expiresAt: Date;
   }): Promise<Session> {
-    const db = getDb();
-    const id = uuidv4();
-    const now = Timestamp.now();
+    try {
+      const db = getDb();
+      const id = uuidv4();
+      const now = Timestamp.now();
 
-    const sessionDoc: any = {
-      userId: data.userId,
-      refreshTokenHash: data.refreshTokenHash,
-      deviceInfo: data.deviceInfo || null,
-      ipAddress: data.ipAddress || null,
-      expiresAt: Timestamp.fromDate(data.expiresAt),
-      createdAt: now,
-      revokedAt: null,
-    };
+      const sessionDoc: any = {
+        userId: data.userId,
+        refreshTokenHash: data.refreshTokenHash,
+        deviceInfo: data.deviceInfo || null,
+        ipAddress: data.ipAddress || null,
+        expiresAt: Timestamp.fromDate(data.expiresAt),
+        createdAt: now,
+        revokedAt: null,
+      };
 
-    await db.collection(this.collectionName).doc(id).set(sessionDoc);
+      await db.collection(this.collectionName).doc(id).set(sessionDoc);
+      logger.info(`✅ Session created in database: ${id}`);
 
-    return this.mapDocToSession(id, sessionDoc);
+      return this.mapDocToSession(id, sessionDoc);
+    } catch (error: any) {
+      logger.warn(`⚠️  Database error creating session, using fallback: ${error.message}`);
+      // Fallback: store in memory
+      const id = uuidv4();
+      const session: Session = {
+        id,
+        userId: data.userId,
+        refreshTokenHash: data.refreshTokenHash,
+        deviceInfo: data.deviceInfo,
+        ipAddress: data.ipAddress,
+        expiresAt: data.expiresAt,
+        createdAt: new Date(),
+        revokedAt: undefined,
+      };
+      fallbackSessionStore.set(id, session);
+      logger.info(`💾 Session created in fallback store: ${id}`);
+      return session;
+    }
   }
 
   /**
@@ -86,7 +110,7 @@ export class SessionRepository {
       .orderBy('createdAt', 'desc')
       .get();
 
-    return snapshot.docs.map((doc) =>
+    return snapshot.docs.map((doc: any) =>
       this.mapDocToSession(doc.id, doc.data())
     );
   }
@@ -114,7 +138,7 @@ export class SessionRepository {
       .get();
 
     const batch = db.batch();
-    snapshot.docs.forEach((doc) => {
+    snapshot.docs.forEach((doc: any) => {
       batch.update(doc.ref, { revokedAt: Timestamp.now() });
     });
 
@@ -136,7 +160,7 @@ export class SessionRepository {
     const batch = db.batch();
     let count = 0;
 
-    snapshot.docs.forEach((doc) => {
+    snapshot.docs.forEach((doc: any) => {
       batch.delete(doc.ref);
       count++;
     });
@@ -162,6 +186,9 @@ export class SessionRepository {
     }
 
     const data = doc.data();
+    if (!data) {
+      return false;
+    }
     return (
       data.expiresAt > now &&
       !data.revokedAt

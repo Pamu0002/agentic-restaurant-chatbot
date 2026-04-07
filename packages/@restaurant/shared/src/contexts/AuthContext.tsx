@@ -3,62 +3,58 @@
  * Shared across web and mobile apps
  * 
  * Manages user authentication state
- * Connected to Firebase for real authentication
+ * Uses custom Node.js backend (no Firebase)
  */
 
 import { createContext, ReactNode, useContext, useEffect, useState } from 'react';
 import {
-    User as FirebaseUser,
-    onAuthChange,
-    signInWithEmail,
-    signInWithGoogle,
-    signOutUser,
-    signUpWithEmail,
-    updateUserPreferences,
-    updateUserProfile,
+  onAuthChange,
+  signInWithEmail,
+  signInWithGoogle,
+  signOutUser,
+  signUpWithEmail,
+  updateUserPreferences,
+  updateUserProfile,
 } from '../services/firebaseService';
+import { User } from '../types/auth';
 
-export interface User {
-  id: string;
-  name: string;
-  email: string;
+// Extended User type for local context with preferences
+export interface AuthUser extends User {
   preferences?: {
-    cuisines: string[];
-    priceRange: string;
-    location: string;
+    cuisines?: string[];
+    priceRange?: string;
+    location?: string;
   };
 }
 
 export interface AuthContextType {
-  user: User | null;
+  user: AuthUser | null;
   isLoading: boolean;
   isAuthenticated: boolean;
   error: string | null;
   login: (email: string, password: string) => Promise<void>;
   loginWithGoogle: (idToken: string) => Promise<void>;
-  signup: (name: string, email: string, password: string) => Promise<void>;
+  signup: (displayName: string, email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
-  updateProfile: (user: User) => Promise<void>;
+  updateProfile: (user: Partial<AuthUser>) => Promise<void>;
   updatePreferences: (preferences: any) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<AuthUser | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   // Listen to auth state changes
   useEffect(() => {
-    const unsubscribe = onAuthChange(async (firebaseUser: FirebaseUser | null) => {
+    const unsubscribe = onAuthChange(async (authUser: User | null) => {
       try {
-        if (firebaseUser) {
-          // User is logged in - convert Firebase User to our User format
+        if (authUser) {
+          // User is logged in
           setUser({
-            id: firebaseUser.uid,
-            name: firebaseUser.displayName || firebaseUser.email?.split('@')[0] || 'User',
-            email: firebaseUser.email || '',
+            ...authUser,
             preferences: {
               cuisines: [],
               priceRange: 'moderate',
@@ -86,13 +82,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       console.log('AuthContext: Attempting login for', email);
       const result = await signInWithEmail(email, password);
-      console.log('AuthContext: Login successful, user:', result);
+      console.log('AuthContext: Login successful');
       
-      // Convert Firebase User to our User format
       setUser({
-        id: result.uid,
-        name: result.displayName || email.split('@')[0],
-        email: result.email,
+        ...result,
         preferences: {
           cuisines: [],
           priceRange: 'moderate',
@@ -113,15 +106,12 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setIsLoading(true);
     setError(null);
     try {
-      console.log('AuthContext: loginWithGoogle called with token length:', token.length);
+      console.log('AuthContext: loginWithGoogle called');
       const result = await signInWithGoogle(token);
       console.log('AuthContext: Google login successful');
       
-      // Convert Firebase User to our User format
       setUser({
-        id: result.uid,
-        name: result.displayName || result.email?.split('@')[0] || 'User',
-        email: result.email,
+        ...result,
         preferences: {
           cuisines: [],
           priceRange: 'moderate',
@@ -138,19 +128,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const signup = async (name: string, email: string, password: string) => {
+  const signup = async (displayName: string, email: string, password: string) => {
     setIsLoading(true);
     setError(null);
     try {
       console.log('AuthContext: Attempting signup for', email);
-      const result = await signUpWithEmail(email, password, name);
-      console.log('AuthContext: Signup successful, user:', result);
+      const result = await signUpWithEmail(email, password, displayName);
+      console.log('AuthContext: Signup successful');
       
-      // User profile is created automatically in signUpWithEmail
       setUser({
-        id: result.uid,
-        name: name,
-        email: email,
+        ...result,
         preferences: {
           cuisines: [],
           priceRange: 'moderate',
@@ -182,14 +169,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
-  const updateProfile = async (updatedUser: User) => {
+  const updateProfile = async (updatedUser: Partial<AuthUser>) => {
     setError(null);
     try {
-      await updateUserProfile(updatedUser.id, {
-        name: updatedUser.name,
+      if (!user) throw new Error('User not authenticated');
+      
+      await updateUserProfile(user.uid, {
+        displayName: updatedUser.displayName,
       });
       
-      setUser(updatedUser);
+      setUser((prev) => prev ? { ...prev, ...updatedUser } : null);
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Profile update failed';
       setError(message);
@@ -202,15 +191,15 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       if (!user) throw new Error('User not authenticated');
       
-      await updateUserPreferences(user.id, preferences);
+      await updateUserPreferences(user.uid, preferences);
       
-      setUser({
-        ...user,
+      setUser((prev) => prev ? {
+        ...prev,
         preferences: {
-          ...user.preferences,
+          ...prev.preferences,
           ...preferences,
         },
-      });
+      } : null);
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Preferences update failed';
       setError(message);
