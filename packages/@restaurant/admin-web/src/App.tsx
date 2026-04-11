@@ -1,4 +1,4 @@
-import { useAuth } from '@restaurant/shared';
+import { Header, useAuth } from '@restaurant/shared';
 import { Navigate, Route, BrowserRouter as Router, Routes } from 'react-router-dom';
 
 // Pages - Will be implemented
@@ -16,18 +16,28 @@ export default function App() {
     return <Navigate to="/" replace />;
   }
 
+  const handleLogoClick = () => {
+    window.location.href = '/';
+  };
+
   return (
     <Router>
-      <Routes>
-        <Route path="/" element={<div>Admin Dashboard (TODO)</div>} />
-        <Route path="/users" element={<div>User Management (TODO)</div>} />
-        <Route path="/restaurants" element={<div>Restaurant Management (TODO)</div>} />
-        <Route path="/approvals" element={<div>Pending Approvals (TODO)</div>} />
-        <Route path="/system-settings" element={<div>System Settings (TODO)</div>} />
-        <Route path="/audit-logs" element={<div>Audit Logs (TODO)</div>} />
+      <div style={{ display: 'flex', flexDirection: 'column', minHeight: '100vh' }}>
+        <Header portalType="admin" onLogoClick={handleLogoClick} />
+        
+        <main style={{ flex: 1, padding: '20px' }}>
+          <Routes>
+            <Route path="/" element={<div style={{ padding: '20px' }}><h1>🛡️ Admin Dashboard</h1><p>System overview and management (TODO)</p></div>} />
+            <Route path="/users" element={<div style={{ padding: '20px' }}><h1>👥 User Management</h1><p>Manage users and accounts (TODO)</p></div>} />
+            <Route path="/restaurants" element={<div style={{ padding: '20px' }}><h1>🏢 Restaurant Management</h1><p>Manage restaurants (TODO)</p></div>} />
+            <Route path="/approvals" element={<div style={{ padding: '20px' }}><h1>✅ Pending Approvals</h1><p>Review pending requests (TODO)</p></div>} />
+            <Route path="/system-settings" element={<div style={{ padding: '20px' }}><h1>⚙️ System Settings</h1><p>Configure system (TODO)</p></div>} />
+            <Route path="/audit-logs" element={<div style={{ padding: '20px' }}><h1>📋 Audit Logs</h1><p>System activity logs (TODO)</p></div>} />
 
-        <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </main>
+      </div>
     </Router>
   );
 }

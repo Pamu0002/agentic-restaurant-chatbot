@@ -5,4 +5,5 @@ packages:
   - 'packages/@restaurant/provider-analytics'
   - 'packages/@restaurant/admin-web'
   - 'packages/@restaurant/support-web'
+  - 'packages/@restaurant/mobile'
   - 'services/*'

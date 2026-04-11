@@ -8,3 +8,7 @@ export * from './services/firebaseService';
 export { AuthProvider, useAuth } from './contexts/AuthContext';
 export type { AuthContextType } from './contexts/AuthContext';
 
+// Export all shared components
+export { Header } from './components/Header';
+export { Logo } from './components/Logo';
+

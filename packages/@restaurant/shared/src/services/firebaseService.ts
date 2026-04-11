@@ -9,10 +9,8 @@
 import axios from 'axios';
 import { AuthStateListener, User } from '../types/auth';
 
-// API configuration - Always point to backend port 5000 in development
-const API_URL = typeof window !== 'undefined' 
-  ? 'http://localhost:5000/api'
-  : (import.meta.env.VITE_API_URL as string) || 'http://localhost:5000/api';
+// API configuration - Use relative path for Vite proxy
+const API_URL = '/api';
 
 let currentUser: User | null = null;
 let sessionToken: string | null = typeof localStorage !== 'undefined' 
@@ -124,7 +122,7 @@ export const initializeGoogleAuth = (): string => {
     throw new Error('Google Client ID is not configured. Check VITE_GOOGLE_CLIENT_ID in .env.local');
   }
   
-  const redirectUri = `${typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000'}/auth/google-callback`;
+  const redirectUri = `${typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000'}/auth/google/callback`;
   
   console.log(`🔐 Google OAuth URL Generator:
   Client ID: ${googleClientId}
@@ -134,7 +132,7 @@ export const initializeGoogleAuth = (): string => {
   const params = new URLSearchParams({
     client_id: googleClientId,
     redirect_uri: redirectUri,
-    response_type: 'id_token token',
+    response_type: 'id_token',
     scope: 'openid email profile',
     nonce: generateNonce(),
   });
@@ -165,21 +163,29 @@ export const onAuthChange = (callback: AuthStateListener): (() => void) => {
   // Check if user is already logged in
   const token = typeof localStorage !== 'undefined' ? localStorage.getItem('sessionToken') : null;
   
+  console.log('🔍 onAuthChange called, token exists:', !!token);
+  
   if (token) {
+    console.log('🔐 Token found, verifying...');
     verifyToken(token)
       .then((user) => {
+        console.log('✅ Verification result:', user);
         if (user) {
           currentUser = user;
+          console.log('📝 Calling callback with user:', user);
           callback(user);
         } else {
+          console.warn('⚠️  Verification returned null user');
           callback(null);
         }
       })
-      .catch(() => {
+      .catch((err) => {
+        console.error('❌ Verification error:', err);
         currentUser = null;
         callback(null);
       });
   } else {
+    console.log('⚠️  No token found, calling callback(null)');
     callback(null);
   }
 
@@ -206,25 +212,39 @@ const notifyAuthStateChange = (user: User | null): void => {
  */
 export const verifyToken = async (token: string): Promise<User | null> => {
   try {
+    console.log('🔍 Verifying token with backend...');
+    console.log('Token length:', token.length, 'chars');
+    
     const response = await axios.post(`${API_URL}/auth/verify`, {
       sessionToken: token,
     }, {
       withCredentials: true,
+      timeout: 5000,
     });
 
+    console.log('✅ Token verification response:', response.status);
+    console.log('Response data:', { valid: response.data.valid, userId: response.data.userId });
+
     if (!response.data.valid) {
+      console.warn('❌ Backend says token is invalid');
       return null;
     }
 
     // Return minimal user info from verification
     const user: User = {
-      uid: response.data.userId,
-      email: response.data.email,
+      uid: response.data.userId || response.data.data?.userId,
+      email: response.data.email || response.data.data?.email,
     };
 
+    console.log('✅ User from token verification:', user);
     return user;
-  } catch (error) {
-    console.warn('Token verification failed:', error);
+  } catch (error: any) {
+    console.error('❌ Token verification failed:', {
+      status: error.response?.status,
+      statusText: error.response?.statusText,
+      data: error.response?.data,
+      message: error.message,
+    });
     return null;
   }
 };
@@ -234,9 +254,15 @@ export const verifyToken = async (token: string): Promise<User | null> => {
  */
 export const signOutUser = async (): Promise<void> => {
   try {
-    // Clear local storage
+    console.log('🚪 Signing out user...');
+    
+    // Clear all authentication related data from localStorage
     if (typeof localStorage !== 'undefined') {
       localStorage.removeItem('sessionToken');
+      localStorage.removeItem('rememberEmail');
+      localStorage.removeItem('authToken');
+      localStorage.removeItem('user');
+      console.log('✅ Cleared all auth tokens from localStorage');
     }
 
     sessionToken = null;
@@ -244,6 +270,7 @@ export const signOutUser = async (): Promise<void> => {
 
     // Notify subscribers
     notifyAuthStateChange(null);
+    console.log('✅ User signed out successfully');
   } catch (error) {
     console.error('Sign out error:', error);
     throw error;
@@ -267,7 +294,7 @@ export const signInWithEmail = async (
   try {
     console.log('🔐 [signInWithEmail] Starting email sign-in');
     
-    const API_URL = typeof window !== 'undefined' ? 'http://localhost:5000/api' : process.env.REACT_APP_API_URL || '';
+    const API_URL = typeof window !== 'undefined' ? 'http://localhost:5000/api' : (import.meta.env.VITE_API_URL as string) || 'http://localhost:5000/api';
     
     const response = await axios.post(
       `${API_URL}/auth/signin`,
@@ -319,7 +346,7 @@ export const signUpWithEmail = async (
   try {
     console.log('📝 [signUpWithEmail] Starting email sign-up');
     
-    const API_URL = typeof window !== 'undefined' ? 'http://localhost:5000/api' : process.env.REACT_APP_API_URL || '';
+    const API_URL = typeof window !== 'undefined' ? 'http://localhost:5000/api' : (import.meta.env.VITE_API_URL as string) || 'http://localhost:5000/api';
     
     const response = await axios.post(
       `${API_URL}/auth/signup`,

@@ -21,6 +21,8 @@ import morgan from 'morgan';
 // Import routes & database
 import { initializeDatabase, runMigrations } from './config/database';
 import authRoutes from './routes/authRoutes';
+import chatRoutes from './routes/chatRoutes';
+import guestRoutes from './routes/guestRoutes';
 import logger from './utils/logger';
 
 // Load environment variables from .env.local file
@@ -37,17 +39,34 @@ const PORT = process.env.PORT || 5000;
 // 2. MIDDLEWARE SETUP
 // ============================================
 
-// CORS: Allow requests from frontend
-const allowedOrigins = (process.env.CORS_ORIGINS || 'http://localhost:5173,http://localhost:3000').split(',');
+// CORS: Allow requests from frontend (MUST be first!)
+const corsOrigins = (process.env.CORS_ORIGINS || 'http://localhost:5173,http://localhost:5174,http://localhost:5175,http://localhost:5176,http://localhost:3000')
+  .split(',')
+  .map(origin => origin.trim()); // Trim whitespace
+
+console.log('✅ Allowed CORS Origins:', corsOrigins);
+
 app.use(cors({
-  origin: allowedOrigins,
+  origin: corsOrigins,
   credentials: true,
-  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH', 'HEAD'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  maxAge: 86400, // 24 hours
+}));
+
+// Handle preflight requests explicitly
+app.options('*', cors({
+  origin: corsOrigins,
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH', 'HEAD'],
   allowedHeaders: ['Content-Type', 'Authorization'],
 }));
 
-// HELMET: Add security headers to responses
-app.use(helmet());
+// HELMET: Add security headers (but don't block CORS)
+app.use(helmet({
+  contentSecurityPolicy: false, // Disable CSP for CORS
+  crossOriginResourcePolicy: { policy: 'cross-origin' }, // Allow cross-origin
+}));
 
 // COOKIE PARSER: Parse cookies from requests
 app.use(cookieParser());
@@ -74,6 +93,12 @@ app.get('/health', (req: Request, res: Response) => {
 
 // Auth routes (handles /api/auth/signup, /api/auth/signin, etc.)
 app.use('/api/auth', authRoutes);
+
+// Guest routes (handles /api/guests/create-session, etc.)
+app.use('/api/guests', guestRoutes);
+
+// Chat routes (handles /api/chat/send, /api/chat/conversations, etc.)
+app.use('/api/chat', chatRoutes);
 
 // ============================================
 // 4. BASIC ROUTES (EXAMPLES)
@@ -110,7 +135,9 @@ app.get('/', (req: Request, res: Response) => {
       health: '/health',
       restaurants: '/api/v1/restaurants',
       reservations: '/api/v1/reservations',
-      users: '/api/v1/users'
+      users: '/api/v1/users',
+      auth: '/api/auth/*',
+      chat: '/api/chat/*'
     }
   });
 });
@@ -406,6 +433,7 @@ async function startServer() {
       logger.info(`📡 Listening on http://localhost:${PORT}`);
       logger.info(`🏥 Health check: http://localhost:${PORT}/health`);
       logger.info(`🔐 Auth endpoints: http://localhost:${PORT}/api/auth/*`);
+      logger.info(`💬 Chat endpoints: http://localhost:${PORT}/api/chat/*`);
       logger.info('═══════════════════════════════════════════════════════');
     });
   } catch (error) {

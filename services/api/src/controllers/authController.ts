@@ -555,9 +555,21 @@ export const logout = (req: Request, res: Response): void => {
  */
 export const verifyToken = async (req: Request, res: Response): Promise<void> => {
   try {
-    const token = req.headers.authorization?.split(' ')[1];
+    // Accept token from either Authorization header or request body
+    let token = req.headers.authorization?.split(' ')[1];
+    
+    logger.info('🔍 Token verify endpoint called');
+    
+    if (!token) {
+      // Try to get from body (sent by frontend firebaseService)
+      token = req.body.sessionToken;
+      logger.info('Token from body:', !!token);
+    } else {
+      logger.info('Token from header:', !!token);
+    }
 
     if (!token) {
+      logger.warn('❌ No token provided in verify request');
       res.status(401).json({
         success: false,
         error: AuthErrorType.UNAUTHORIZED,
@@ -566,9 +578,13 @@ export const verifyToken = async (req: Request, res: Response): Promise<void> =>
       return;
     }
 
+    logger.info('🔐 Verifying token...');
     const payload = (authService as any).verifyAccessToken(token);
     
+    logger.info('Verification result:', !!payload);
+    
     if (!payload) {
+      logger.warn('❌ Token verification failed - invalid payload');
       res.status(401).json({
         success: false,
         error: AuthErrorType.UNAUTHORIZED,
@@ -577,8 +593,13 @@ export const verifyToken = async (req: Request, res: Response): Promise<void> =>
       return;
     }
 
+    logger.info('✅ Token verified successfully:', { userId: payload.userId, email: payload.email });
+    
     res.json({
       success: true,
+      valid: true,
+      userId: payload.userId,
+      email: payload.email,
       data: {
         valid: true,
         userId: payload.userId,

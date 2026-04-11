@@ -1,15 +1,43 @@
 /**
  * AUTHENTICATION MIDDLEWARE
  * Verifies JWT tokens and protects routes
+ * Supports both auth user tokens and guest tokens
  */
 
 import { NextFunction, Request, Response } from 'express';
+import jwt from 'jsonwebtoken';
 import AuthService from '../../services/AuthService';
 import logger from '../../utils/logger';
 
 /**
+ * Verify guest token
+ * Used when AuthService.verifyAccessToken fails
+ */
+function verifyGuestToken(token: string): any {
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET || 'your-secret-key') as any;
+    
+    // Check if it's a guest token
+    if (decoded.isGuest && decoded.guestId) {
+      logger.info(`✅ Guest token verified: ${decoded.guestId}`);
+      return {
+        ...decoded,
+        userId: decoded.guestId,
+        isGuest: true,
+      };
+    }
+    
+    return null;
+  } catch (error) {
+    logger.debug('Guest token verification failed:', error instanceof Error ? error.message : 'Unknown error');
+    return null;
+  }
+}
+
+/**
  * Verify access token in Authorization header
  * Expected format: "Bearer <accessToken>"
+ * Supports both auth users and guest users
  */
 export const verifyAccessToken = (req: Request, res: Response, next: NextFunction) => {
   try {
@@ -24,7 +52,14 @@ export const verifyAccessToken = (req: Request, res: Response, next: NextFunctio
     }
 
     const token = authHeader.substring(7); // Remove "Bearer " prefix
-    const payload = AuthService.verifyAccessToken(token);
+
+    // Try to verify as auth user token
+    let payload = AuthService.verifyAccessToken(token);
+
+    // If auth token fails, try as guest token
+    if (!payload) {
+      payload = verifyGuestToken(token);
+    }
 
     if (!payload) {
       return res.status(401).json({
@@ -36,6 +71,10 @@ export const verifyAccessToken = (req: Request, res: Response, next: NextFunctio
 
     // Attach payload to request for use in route handlers
     (req as any).user = payload;
+    (req as any).userId = payload.userId; // Set userId for access in route handlers
+    (req as any).isGuest = (payload as any).isGuest || false; // Flag for guest users
+    
+    logger.debug(`User authenticated: ${payload.userId} (${(payload as any).isGuest ? 'guest' : 'authenticated'})`);
     next();
   } catch (error) {
     logger.error('Auth middleware error:', error);

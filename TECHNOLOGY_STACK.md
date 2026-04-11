@@ -13,7 +13,9 @@ ARCHITECTURE: Microservices (Frontend PWA + 2 Backend Services)
 REPOSITORY: Monorepo with npm workspaces
 ```
 
-### **Layer 1: FRONTEND (Progressive Web App)**
+### **Layer 1: FRONTEND (Multi-Platform - Web PWA + Mobile Native)**
+
+#### **1a. Web Application (React + Vite)**
 
 | Component | Technology | Version | Purpose |
 |-----------|-----------|---------|---------|
@@ -30,6 +32,24 @@ REPOSITORY: Monorepo with npm workspaces
 | **PWA** | Workbox | 7.x | Service workers & offline |
 | **Testing** | Vitest + React Testing Library | Latest | Unit & integration tests |
 | **Linting** | ESLint + Prettier | Latest | Code quality |
+
+#### **1b. Mobile Application (React Native + Expo - Cross-Platform)**
+
+| Component | Technology | Version | Purpose |
+|-----------|-----------|---------|---------|
+| **Framework** | React Native | 0.73+ | Native iOS & Android apps |
+| **Platform Management** | Expo | 50.0+ | Cross-platform build & deployment |
+| **Router** | Expo Router | 2.0+ | File-based routing (web, iOS, Android) |
+| **Styling** | React Native StyleSheet + Tailwind | Latest | Native and responsive styling |
+| **Language** | TypeScript | 5.x | Type-safe mobile development |
+| **HTTP Client** | Axios | 1.x | REST API calls (shared with web) |
+| **State Management** | React Query | 5.x / TanStack Query | Server state management (shared) |
+| **UI Components** | React Native Paper + NativeBase | Latest | Material Design components |
+| **Shared Code** | @restaurant/shared | Monorepo | Types, utils, hooks (90%+ shared) |
+| **Testing** | Jest | 29.x | Unit & integration tests |
+| **Deployment** | Expo EAS Build | Latest | iOS App Store & Google Play Store |
+
+**Note:** Mobile and Web share ~95% business logic, API calls, and types through `@restaurant/shared` monorepo package.
 
 **Deployment:** 
 - Dev: `http://localhost:3000` (Vite dev server)
@@ -246,7 +266,8 @@ agentic-restaurant-chatbot/
 | Layer | Component | Technology | Status |
 |-------|-----------|-----------|--------|
 | **Frontend** | Web App | React 18 + Vite + Tailwind | ✅ CONFIRMED |
-| **Frontend** | Mobile | React PWA (responsive) | ✅ CONFIRMED |
+| **Frontend** | Mobile App | React Native 0.73 + Expo 50 + Expo Router | ✅ CONFIRMED |
+| **Frontend** | Shared Code | @restaurant/shared (Monorepo) | ✅ CONFIRMED |
 | **Backend** | API Service | Node.js 18 + Express.js + TS | ✅ CONFIRMED |
 | **Backend** | AI Service | Python 3.11 + FastAPI | ✅ CONFIRMED |
 | **Database** | Real-time | Firebase Firestore | ✅ CONFIRMED |

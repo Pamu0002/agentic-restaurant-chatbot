@@ -10,11 +10,20 @@ This file initializes the FastAPI server and sets up:
 """
 
 from fastapi import FastAPI, HTTPException, Query
+from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 from typing import Optional, List
 from datetime import datetime
 import logging
 import os
+from dotenv import load_dotenv
+
+# Load environment variables from .env file
+load_dotenv()
+
+# Import orchestrator and agents
+from app.api.orchestrator import AgentOrchestrator
+from app.llm.gemini_service import GeminiService
 
 # ============================================
 # 1. CONFIGURE LOGGING
@@ -38,6 +47,28 @@ app = FastAPI(
     description="AI-powered service for restaurant discovery, recommendations, and agent orchestration",
     version="1.0.0"
 )
+
+# ============================================
+# 2.5. ADD CORS MIDDLEWARE
+# ============================================
+
+# Allow frontend to call this service from different ports
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:3000", "http://localhost:5173", "http://127.0.0.1:3000", "http://127.0.0.1:5173"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+# ============================================
+# 2.6. INITIALIZE ORCHESTRATOR AND AGENTS
+# ============================================
+
+# Initialize the main orchestrator (this will init all agents)
+orchestrator = AgentOrchestrator()
+gemini_service = GeminiService()
+logger.info("✅ Agent Orchestrator initialized with all agents!")
 
 # ============================================
 # 3. DEFINE DATA MODELS (PYDANTIC)
@@ -97,6 +128,11 @@ class ReservationRequest(BaseModel):
     party_size: int = Field(ge=1, le=20)
     special_requests: Optional[str] = None
 
+class ChatMessage(BaseModel):
+    """Chat message from user"""
+    message: str = Field(..., min_length=1, description="User's message")
+    user_id: Optional[str] = Field(None, description="Optional user ID for personalization")
+
 # ============================================
 # 4. API ENDPOINTS
 # ============================================
@@ -143,8 +179,8 @@ async def discover_restaurants(query: RestaurantQuery):
     
     Purpose:
     - Search for restaurants by location, cuisine, budget
-    - Return relevant results
-    - Filter by availability
+    - Use AI to understand search intent
+    - Return relevant results filtered by availability
     
     Example request:
     POST /api/v1/agents/discover
@@ -156,41 +192,20 @@ async def discover_restaurants(query: RestaurantQuery):
     }
     """
     try:
-        logger.info(f"Discovery Agent: Searching for {query.cuisine} in {query.location}")
+        logger.info(f"Discovery Agent: Searching for restaurants")
         
-        # TODO: Query Neo4j or Firestore for restaurants
-        # restaurants = await get_restaurants_from_db(query)
-        
-        # For now, return mock data
-        mock_restaurants = [
-            {
-                "id": "rest_1",
-                "name": "Pizza Palace",
-                "location": query.location,
-                "cuisine": query.cuisine or "Italian",
-                "rating": 4.5,
-                "available_tables": 5
-            },
-            {
-                "id": "rest_2",
-                "name": "Le Petit Bistro",
-                "location": query.location,
-                "cuisine": "French",
-                "rating": 4.8,
-                "available_tables": 3
-            }
-        ]
-        
-        return {
-            "agent_name": "DiscoveryAgent",
-            "action": "searched_restaurants",
-            "result": {
-                "query": query.dict(),
-                "restaurants": mock_restaurants,
-                "count": len(mock_restaurants)
-            },
-            "reasoning": f"Found {len(mock_restaurants)} restaurants matching your criteria"
+        # Use orchestrator to handle discovery
+        intent_data = {
+            "intent": "discover",
+            "location": query.location,
+            "cuisine": query.cuisine,
+            "party_size": query.party_size,
+            "budget": query.budget,
         }
+        
+        result = await orchestrator._handle_discovery(intent_data, f"Find {query.cuisine} {query.location}")
+        
+        return result
         
     except Exception as e:
         logger.error(f"Error in discovery agent: {str(e)}")
@@ -204,10 +219,10 @@ async def get_recommendations(user_id: str = Query(..., description="User ID")):
     Provides personalized restaurant recommendations
     
     Purpose:
-    - Analyze user's past visits
-    - Consider user preferences
+    - Analyze user's past visits and preferences
     - Use collaborative filtering
-    - Return top recommendations
+    - Use content-based recommendations
+    - Return personalized suggestions with explanations
     
     Example request:
     POST /api/v1/agents/recommend?user_id=user_123
@@ -215,36 +230,14 @@ async def get_recommendations(user_id: str = Query(..., description="User ID")):
     try:
         logger.info(f"Recommendation Agent: Getting recommendations for user {user_id}")
         
-        # TODO: Connect to Neo4j graph database
-        # user_graph = await get_user_graph(user_id)
-        # recommendations = await generate_recommendations(user_graph)
-        
-        # Mock recommendations
-        mock_recommendations = [
-            {
-                "restaurant_id": "rest_1",
-                "name": "Pizza Palace",
-                "score": 0.95,
-                "reason": "You loved Italian cuisine last time"
-            },
-            {
-                "restaurant_id": "rest_3",
-                "name": "Tokyo Express",
-                "score": 0.87,
-                "reason": "Similar to restaurants you've rated highly"
-            }
-        ]
-        
-        return {
-            "agent_name": "RecommendationAgent",
-            "action": "generated_recommendations",
-            "result": {
-                "user_id": user_id,
-                "recommendations": mock_recommendations,
-                "count": len(mock_recommendations)
-            },
-            "reasoning": "Analyzed your preferences and booking history"
+        # Use orchestrator to handle recommendations
+        intent_data = {
+            "intent": "recommend",
         }
+        
+        result = await orchestrator._handle_recommendation(intent_data, user_id, "Give me recommendations")
+        
+        return result
         
     except Exception as e:
         logger.error(f"Error in recommendation agent: {str(e)}")
@@ -309,31 +302,47 @@ async def make_reservation(request: ReservationRequest):
         logger.error(f"Error in reservation agent: {str(e)}")
         raise HTTPException(status_code=500, detail=f"Reservation failed: {str(e)}")
 
-@app.post("/api/v1/agents/chat")
-async def chat_with_agent(message: str = Query(..., description="User message")):
+@app.post("/api/v1/chat", response_model=AgentResponse)
+async def chat_with_restaurant_bot(message_data: ChatMessage):
     """
-    MAIN CHAT ENDPOINT
+    MAIN CHAT ENDPOINT - Natural Language Processing
     
-    This is where the magic happens!
+    This is the main entry point for all user interactions.
     
-    Purpose:
-    - Accept natural language input from user
-    - Route to appropriate agent based on intent
-    - Return AI-generated response
+    Process:
+    1. Accept natural language message from user
+    2. Detect intent (discover, recommend, reserve, pay, or general)
+    3. Extract relevant entities (location, cuisine, date, time, etc)
+    4. Route to appropriate agent
+    5. Generate and return response
     
-    Example:
-    POST /api/v1/agents/chat?message=Find+me+Italian+restaurants+in+Paris
+    Example request:
+    POST /api/v1/chat
+    {
+        "message": "Find me Italian restaurants in Paris for 4 people next Friday at 8pm",
+        "user_id": "user_123"  # optional
+    }
     
-    The system should:
-    1. Understand user intent (discovery, recommendation, reservation)
-    2. Extract relevant information
-    3. Call appropriate agent
-    4. Generate natural language response
+    Response will automatically:
+    - Understand it's a discovery request
+    - Extract: cuisine=Italian, location=Paris, party_size=4, date=2024-03-15, time=20:00
+    - Call Discovery Agent
+    - Return matching restaurants
     """
     try:
-        logger.info(f"Chat Agent: Processing message: {message}")
+        logger.info(f"Chat: Processing message from user {message_data.user_id or 'anonymous'}")
         
-        # TODO: Use Vertex AI to understand user intent
+        # Use orchestrator to process user message
+        response = await orchestrator.process_user_message(
+            message_data.message, 
+            user_id=message_data.user_id
+        )
+        
+        return response
+        
+    except Exception as e:
+        logger.error(f"Error in chat endpoint: {str(e)}")
+        raise HTTPException(status_code=500, detail=f"Chat processing failed: {str(e)}")
         # intent = await analyze_intent(message)
         #
         # if intent == "discovery":

@@ -5,7 +5,7 @@
  * Extracts the ID token and sends to backend for verification
  */
 
-import { signInWithGoogle, useAuth } from '@restaurant/shared';
+import { useAuth } from '@restaurant/shared';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
@@ -16,7 +16,6 @@ interface GoogleCallbackProps {
 
 export default function GoogleCallback({ onSuccess, onError }: GoogleCallbackProps) {
   const navigate = useNavigate();
-  const { loginWithGoogle } = useAuth();
   const [status, setStatus] = useState<'processing' | 'success' | 'error'>('processing');
   const [errorMsg, setErrorMsg] = useState('');
 
@@ -82,24 +81,40 @@ export default function GoogleCallback({ onSuccess, onError }: GoogleCallbackPro
         
         console.log('🔐 Sending token to backend...');
         
-        // Send the idToken to our backend which will verify it with Google
-        const user = await signInWithGoogle(idToken);
-        
-        console.log('✅ Backend verified and user created:', user.email);
-        console.log('User object:', user);
-        
-        // Update AuthContext with the user
-        if (loginWithGoogle) {
-          try {
-            console.log('📝 Updating AuthContext...');
-            await loginWithGoogle(idToken);
-            console.log('✅ AuthContext updated');
-          } catch (e) {
-            console.warn('⚠️  AuthContext update failed (this may be OK):', e);
-            // The authContext might not need explicit login call
-            // since firebaseService.ts now notifies of auth state
-          }
+        // Send the idToken to our backend's /api/auth/google endpoint
+        // Backend will verify with Google and return backend JWT token
+        const backendUrl = import.meta.env.VITE_API_URL || 'http://localhost:5000';
+        const response = await fetch(`${backendUrl}/api/auth/google`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            idToken: idToken,
+          }),
+        });
+
+        if (!response.ok) {
+          const errorData = await response.json();
+          throw new Error(errorData.message || `Backend auth failed: ${response.status}`);
         }
+
+        const data = await response.json();
+        
+        if (!data.success) {
+          throw new Error(data.message || 'Backend authentication failed');
+        }
+
+        console.log('✅ Backend verified and user created:', data.data.user.email);
+        console.log('Access Token:', data.data.accessToken.substring(0, 50) + '...');
+        
+        // Store the backend JWT token instead of Firebase token
+        localStorage.setItem('firebaseAuthToken', data.data.accessToken);
+        localStorage.setItem('firebaseUid', data.data.user.uid);
+        localStorage.setItem('firebaseRefreshToken', data.refreshToken || '');
+        
+        console.log('✅ Tokens stored in localStorage');
+        console.log('🔄 Auth state will update via onAuthChange listener');
         
         // Clean up URL hash - remove the token from URL
         window.history.replaceState({}, document.title, window.location.pathname);
@@ -147,7 +162,7 @@ export default function GoogleCallback({ onSuccess, onError }: GoogleCallbackPro
 
     console.log('🚀 GoogleCallback useEffect triggered');
     handleCallback();
-  }, [loginWithGoogle, onSuccess, onError]);
+  }, [onSuccess, onError]);
 
   return (
     <div className="auth-container">
