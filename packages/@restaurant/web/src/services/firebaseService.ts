@@ -5,8 +5,8 @@ const firebaseConfig = {
     projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
 };
 
-// Firebase REST API endpoints
-const AUTH_API_URL = 'https://identitytoolkit.googleapis.com/v1/accounts';
+// Backend API endpoint (changed from Firebase)
+const BACKEND_API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000';
 const FIRESTORE_API_URL = `https://firestore.googleapis.com/v1/projects/${firebaseConfig.projectId}/databases/(default)/documents`;
 
 export interface User {
@@ -16,11 +16,13 @@ export interface User {
 }
 
 interface AuthResponse {
-    idToken: string;
-    email: string;
+    accessToken: string;
     refreshToken: string;
-    expiresIn: string;
-    localId: string;
+    user: {
+        id: string;
+        email: string;
+        displayName: string;
+    };
 }
 
 let currentUser: User | null = null;
@@ -38,34 +40,37 @@ export const signUpWithEmail = async (
 ): Promise<User> => {
     try {
         console.log('Sign up attempt:', email, name);
-        // Create user account using Firebase REST API
+        // Create user account using Backend API
         const response = await axios.post<AuthResponse>(
-            `${AUTH_API_URL}:signUp?key=${firebaseConfig.apiKey}`,
+            `${BACKEND_API_URL}/api/auth/signup`,
             {
                 email,
                 password,
-                returnSecureToken: true,
+                displayName: name,
             }
         );
 
         console.log('Sign up successful, saving profile...');
-        const { idToken, refreshToken: newRefreshToken, localId } = response.data;
-        authToken = idToken;
+        const { data } = response.data;
+        const accessToken = data.accessToken;
+        const newRefreshToken = data.refreshToken || '';
+        const localId = data.user.id;
+        
+        authToken = accessToken;
         refreshToken = newRefreshToken;
 
         // Store tokens in localStorage
-        localStorage.setItem('firebaseAuthToken', idToken);
+        localStorage.setItem('firebaseAuthToken', accessToken);
         localStorage.setItem('firebaseRefreshToken', newRefreshToken);
         localStorage.setItem('firebaseUid', localId);
 
-        // Create user profile in Firestore
+        // Create user
         const user: User = {
             uid: localId,
-            email,
-            displayName: name,
+            email: data.user.email,
+            displayName: data.user.displayName,
         };
 
-        await saveUserProfile(user);
         currentUser = user;
 
         // Notify subscribers
@@ -90,28 +95,36 @@ export const signInWithEmail = async (
 ): Promise<User> => {
     try {
         console.log('Sign in attempt:', email);
-        // Sign in user using Firebase REST API
+        // Sign in user using Backend API (not Firebase)
         const response = await axios.post<AuthResponse>(
-            `${AUTH_API_URL}:signInWithPassword?key=${firebaseConfig.apiKey}`,
+            `${BACKEND_API_URL}/api/auth/login`,
             {
                 email,
                 password,
-                returnSecureToken: true,
             }
         );
 
-        console.log('Sign in successful, getting profile...');
-        const { idToken, refreshToken: newRefreshToken, localId } = response.data;
-        authToken = idToken;
+        console.log('Sign in successful');
+        const { data } = response.data;
+        const accessToken = data.accessToken;
+        const newRefreshToken = data.refreshToken || '';
+        const localId = data.user.id;
+        
+        authToken = accessToken;
         refreshToken = newRefreshToken;
 
         // Store tokens in localStorage
-        localStorage.setItem('firebaseAuthToken', idToken);
+        localStorage.setItem('firebaseAuthToken', accessToken);
         localStorage.setItem('firebaseRefreshToken', newRefreshToken);
         localStorage.setItem('firebaseUid', localId);
 
-        // Get user profile from Firestore
-        const user = await getUserProfile(localId);
+        // Create user object from backend response
+        const user: User = {
+            uid: localId,
+            email: data.user.email,
+            displayName: data.user.displayName,
+        };
+        
         currentUser = user;
 
         // Notify subscribers
@@ -121,7 +134,7 @@ export const signInWithEmail = async (
         return user;
     } catch (error: any) {
         console.error('Sign in error:', error);
-        const errorMessage = error.response?.data?.error?.message || error.message || 'Sign in failed';
+        const errorMessage = error.response?.data?.message || error.message || 'Sign in failed';
         console.error('Error message:', errorMessage);
         throw new Error(errorMessage);
     }
