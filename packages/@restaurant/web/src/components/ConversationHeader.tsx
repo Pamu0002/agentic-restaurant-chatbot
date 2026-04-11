@@ -1,13 +1,16 @@
 /**
  * CONVERSATION HEADER COMPONENT
  * 
- * Top bar with conversation title, online status, and menu options
+ * Top bar with conversation title, online status, menu options, and user profile
  */
+
+import UserProfileMenu from './UserProfileMenu';
 
 interface ConversationHeaderProps {
   title?: string;
   onBack?: () => void;
   onMenu?: () => void;
+  onLogout?: () => void;
   isOnline?: boolean;
   showBack?: boolean;
 }
@@ -16,6 +19,7 @@ export default function ConversationHeader({
   title = 'Chef Assistant',
   onBack,
   onMenu,
+  onLogout,
   isOnline = true,
   showBack = false
 }: ConversationHeaderProps) {
@@ -51,6 +55,8 @@ export default function ConversationHeader({
             ⋮
           </button>
         )}
+        
+        <UserProfileMenu onLogout={onLogout} />
       </div>
     </div>
   );

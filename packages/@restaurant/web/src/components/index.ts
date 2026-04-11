@@ -7,6 +7,7 @@ export { default as EmptyChatState } from './EmptyChatState';
 export { default as MessageBubble } from './MessageBubble';
 export { default as QuickReplyChips } from './QuickReplyChips';
 export { default as RestaurantCard } from './RestaurantCard';
+export { default as UserProfileMenu } from './UserProfileMenu';
 export { default as UserSidebar } from './UserSidebar';
 
 

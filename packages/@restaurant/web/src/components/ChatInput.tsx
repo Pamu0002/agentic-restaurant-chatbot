@@ -5,8 +5,8 @@
  */
 
 import { useEffect, useRef, useState } from 'react';
-import { useAuth } from '../../../shared/src/contexts/AuthContext';
 import { useNavigate } from 'react-router-dom';
+import { useAuth } from '../../../shared/src/contexts/AuthContext';
 
 interface ChatInputProps {
   onSendMessage: (message: string) => void;
