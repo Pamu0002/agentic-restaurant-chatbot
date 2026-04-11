@@ -7,6 +7,7 @@
 
 import { signInWithGoogle, useAuth } from '@restaurant/shared';
 import { useEffect, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
 interface GoogleCallbackProps {
   onSuccess?: () => void;
@@ -14,6 +15,7 @@ interface GoogleCallbackProps {
 }
 
 export default function GoogleCallback({ onSuccess, onError }: GoogleCallbackProps) {
+  const navigate = useNavigate();
   const { loginWithGoogle } = useAuth();
   const [status, setStatus] = useState<'processing' | 'success' | 'error'>('processing');
   const [errorMsg, setErrorMsg] = useState('');
@@ -115,6 +117,10 @@ export default function GoogleCallback({ onSuccess, onError }: GoogleCallbackPro
         console.log('📍 Calling onSuccess callback');
         if (onSuccess) {
           onSuccess();
+        } else {
+          // If no callback, navigate to chat
+          console.log('📍 Navigating to /chat');
+          navigate('/chat');
         }
         
       } catch (error) {
@@ -161,7 +167,7 @@ export default function GoogleCallback({ onSuccess, onError }: GoogleCallbackPro
             <div style={{ fontSize: '3rem', marginBottom: '1rem' }}>✅</div>
             <p style={{ color: '#16A34A' }}>Login successful!</p>
             <p style={{ color: '#999', fontSize: '0.9rem', marginTop: '0.5rem' }}>
-              Redirecting to DineBot...
+              Redirecting to AgentDine...
             </p>
           </>
         )}

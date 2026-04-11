@@ -7,11 +7,12 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': path.resolve(__dirname, './src'),
+      '@restaurant/shared': path.resolve(__dirname, '../shared/src'),
     },
   },
   server: {
-    port: 3000,
-    strictPort: true,
+    port: 5173,
+    strictPort: false,
     proxy: {
       '/api': {
         target: 'http://localhost:5000',

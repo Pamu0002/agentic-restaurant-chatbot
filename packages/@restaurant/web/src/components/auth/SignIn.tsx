@@ -10,23 +10,17 @@
 
 import { initializeGoogleAuth, useAuth } from '@restaurant/shared';
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
-interface SignInProps {
-  onBack: () => void;
-  onSignInSuccess: () => void;
-  onSignUpClick: () => void;
-}
+interface SignInProps {}
 
-export default function SignIn({
-  onBack,
-  onSignInSuccess,
-  onSignUpClick,
-}: SignInProps) {
+export default function SignIn(): JSX.Element {
   // ============================================
-  // STATE
+  // HOOKS
   // ============================================
-
-  const { login, isLoading } = useAuth();
+  
+  const navigate = useNavigate()
+  const { login, isLoading } = useAuth()
   const [formData, setFormData] = useState({
     email: '',
     password: '',
@@ -87,7 +81,7 @@ export default function SignIn({
       if (formData.rememberMe) {
         localStorage.setItem('rememberEmail', formData.email);
       }
-      onSignInSuccess();
+      navigate('/chat');
     } catch (error) {
       setErrors({ submit: 'Invalid email or password' });
     }
@@ -139,7 +133,7 @@ export default function SignIn({
       <div className="auth-card">
         {/* HEADER */}
         <div className="auth-header">
-          <button className="auth-back-btn" onClick={onBack}>
+          <button className="auth-back-btn" onClick={() => navigate('/')}>
             ← Back
           </button>
           <h2 className="auth-title">Welcome Back</h2>
@@ -233,7 +227,7 @@ export default function SignIn({
           Don't have an account?{' '}
           <button
             type="button"
-            onClick={onSignUpClick}
+            onClick={() => navigate('/signup')}
             className="link-button"
           >
             Create one

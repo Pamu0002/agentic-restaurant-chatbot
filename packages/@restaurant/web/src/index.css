@@ -1,64 +1,68 @@
 /**
- * PROFESSIONAL CHATBOT UI STYLES
- * Modern Red/Orange + Teal Color Scheme
- * Chatbot-First Design Pattern
+ * Magic Patterns - DineBot UI Styles
+ * Teal/Cyan Color Scheme with Dark Background
+ * Restaurant AI Assistant Design
  */
 
+/* Import Font from Google */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
 /* ============================================
-   1. COLOR SYSTEM (Modern Professional)
+   1. COLOR SYSTEM (Magic Patterns Teal/Cyan)
    ============================================ */
 
 :root {
-  /* Primary Colors - Orange Brand */
-  --primary: #F97316;           /* orange-500 */
-  --primary-hover: #EA580C;     /* orange-600 */
-  --primary-light: #FFEDD5;     /* orange-100 */
-  --primary-dark: #C2410C;      /* orange-700 */
+  /* Primary Colors - Teal & Cyan */
+  --primary: #14B8A6;           /* teal-500 */
+  --primary-hover: #0D9488;     /* teal-600 */
+  --primary-light: #CCFBF1;     /* teal-100 */
+  --primary-dark: #0F766E;      /* teal-700 */
 
   /* Accent Colors */
-  --accent-red: #EF4444;        /* red-500 */
-  --accent-red-dark: #DC2626;   /* red-600 */
-  --accent-blue: #3B82F6;       /* blue-500 */
-  --accent-blue-light: #DBEAFE; /* blue-100 */
-  --accent-blue-dark: #1D4ED8;  /* blue-700 */
+  --accent-cyan: #06B6D4;       /* cyan-500 */
+  --accent-cyan-dark: #0891B2;  /* cyan-600 */
+  --accent-cyan-light: #CFFAFE; /* cyan-100 */
 
   /* Success/Status Colors */
   --success-light: #D1FAE5;     /* green-100 */
-  --success: #16A34A;           /* green-600 */
-  --success-dark: #15803D;      /* green-700 */
-
-  /* Category & Tag Colors */
-  --purple-light: #F3E8FF;      /* purple-100 */
-  --purple-dark: #7E22CE;       /* purple-700 */
-  --pink-light: #FCE7F3;        /* pink-100 */
-  --pink: #DB2777;              /* pink-600 */
+  --success: #10B981;           /* green-600 */
+  --success-dark: #059669;      /* green-700 */
 
   /* Neutral Colors */
-  --text-primary: #111827;      /* gray-900 */
-  --text-secondary: #4B5563;    /* gray-600 */
-  --text-tertiary: #6B7280;     /* gray-500 */
-  --text-light: #9CA3AF;        /* gray-400 */
-  --border-color: #D1D5DB;      /* gray-300 */
-  --border-light: #E5E7EB;      /* gray-200 */
-  --bg-primary: #FFFFFF;        /* white */
-  --bg-secondary: #F3F4F6;      /* gray-100 */
-  --bg-hover: #F9FAFB;          /* gray-50 */
+  --text-primary: #F1F5F9;      /* slate-100 */
+  --text-secondary: #E2E8F0;    /* slate-200 */
+  --text-tertiary: #CBD5E1;     /* slate-300 */
+  --text-light: #94A3B8;        /* slate-400 */
+  
+  /* Backgrounds */
+  --bg-primary: #0F172A;        /* slate-900 */
+  --bg-secondary: #1E293B;      /* slate-800 */
+  --bg-tertiary: #334155;       /* slate-700 */
+  --bg-hover: #475569;          /* slate-600 */
 
-  /* Destructive Colors */
-  --destructive: #EF4444;       /* red-500 */
-  --destructive-border: #FECACA; /* red-200 */
-  --destructive-hover: #FEF2F2; /* red-50 */
+  /* Border Colors */
+  --border-color: #FFFFFF1A;    /* white/10 */
+  --border-light: #FFFFFF08;    /* white/5 */
 
-  /* Shadows */
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
-  --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.08);
-  --shadow-lg: 0 12px 24px rgba(0, 0, 0, 0.12);
+  /* Error/Warning Colors */
+  --error: #EF4444;             /* red-500 */
+  --error-light: #FEE2E2;       /* red-100 */
+  --warning: #F59E0B;           /* amber-500 */
+  --info: #3B82F6;              /* blue-500 */
 
-  /* Gradients */
-  --gradient-primary: linear-gradient(135deg, #F97316 0%, #EF4444 100%);
+  /* Shadows - Teal glow */
+  --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.2);
+  --shadow-md: 0 8px 16px rgba(0, 0, 0, 0.3);
+  --shadow-lg: 0 16px 32px rgba(0, 0, 0, 0.4);
+  --shadow-glow: 0 0 20px rgba(20, 184, 166, 0.3);
+
+  /* Gradients - Teal to Cyan */
+  --gradient-primary: linear-gradient(135deg, #14B8A6 0%, #06B6D4 100%);
+  --gradient-bg: linear-gradient(to bottom right, #0f172a, #1a1a2e);
 
   /* Typography */
-  --font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+  --font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-weight-light: 300;
   --font-weight-regular: 400;
   --font-weight-medium: 500;
   --font-weight-semibold: 600;
@@ -74,22 +78,21 @@
   --text-3xl: 1.875rem;
 
   /* Spacing */
-  --spacing-1: 0.25rem;
   --spacing-2: 0.5rem;
   --spacing-3: 0.75rem;
   --spacing-4: 1rem;
   --spacing-6: 1.5rem;
   --spacing-8: 2rem;
+  --spacing-10: 2.5rem;
   --spacing-12: 3rem;
   --spacing-16: 4rem;
 
   /* Border Radius */
-  --radius-none: 0;
-  --radius-sm: 0.25rem;
-  --radius-base: 0.5rem;
-  --radius-md: 0.75rem;
-  --radius-lg: 1rem;
-  --radius-xl: 1.5rem;
+  --radius-sm: 0.375rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-xl: 1rem;
+  --radius-2xl: 1.25rem;
   --radius-full: 9999px;
 
   /* Transitions */
@@ -117,30 +120,84 @@ body {
   font-family: var(--font-family);
   font-size: var(--text-base);
   color: var(--text-primary);
-  background-color: var(--bg-secondary);
+  background: var(--gradient-bg);
+  background-color: var(--bg-primary);
   line-height: 1.6;
   height: 100%;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  overflow-x: hidden;
 }
 
 #root {
   height: 100%;
+  color: var(--text-primary);
 }
 
 /* ============================================
-   3. APP LAYOUT
+   3. SCROLLBAR STYLES
+   ============================================ */
+
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: rgba(255, 255, 255, 0.2);
+}
+
+.hide-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
+.hide-scrollbar {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+
+/* ============================================
+   4. UTILITY CLASSES
+   ============================================ */
+
+.gradient-primary {
+  background: var(--gradient-primary);
+}
+
+.text-gradient {
+  background: var(--gradient-primary);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.glow-shadow {
+  box-shadow: var(--shadow-glow);
+}
+
+/* ============================================
+   5. APP LAYOUT
    ============================================ */
 
 .app-container {
   display: flex;
   flex-direction: column;
   height: 100vh;
-  background-color: var(--bg-secondary);
+  background-color: var(--bg-primary);
 }
 
 .app-header {
-  background: var(--bg-primary);
+  background: rgba(0, 0, 0, 0.2);
+  backdrop-filter: blur(10px);
   border-bottom: 1px solid var(--border-color);
   padding: var(--spacing-4);
   box-shadow: var(--shadow-sm);
@@ -345,12 +402,208 @@ body {
 
 .input-field:focus {
   outline: none;
-  border-color: var(--primary);
-  background: var(--bg-primary);
-  box-shadow: 0 0 0 3px rgba(255, 107, 107, 0.1);
+  border-color: var(--accent-cyan);
+  background: rgba(20, 184, 166, 0.05);
+  box-shadow: 0 0 0 3px rgba(20, 184, 166, 0.1);
 }
 
 .input-field::placeholder {
+  color: var(--text-light);
+}
+
+/* ============================================
+   Magic Patterns - Button Styles
+   ============================================ */
+
+.btn-primary {
+  background: var(--gradient-primary);
+  color: white;
+  border: none;
+  border-radius: var(--radius-lg);
+  padding: 0.75rem 1.5rem;
+  font-weight: var(--font-weight-bold);
+  font-size: var(--text-sm);
+  cursor: pointer;
+  transition: var(--transition-base);
+  box-shadow: 0 4px 12px rgba(20, 184, 166, 0.3);
+}
+
+.btn-primary:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(20, 184, 166, 0.4);
+}
+
+.btn-primary:active {
+  transform: translateY(0);
+  box-shadow: 0 2px 8px rgba(20, 184, 166, 0.2);
+}
+
+.btn-primary:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+}
+
+.btn-secondary {
+  background: transparent;
+  color: var(--primary);
+  border: 2px solid var(--primary);
+  border-radius: var(--radius-lg);
+  padding: 0.6rem 1.4rem;
+  font-weight: var(--font-weight-bold);
+  font-size: var(--text-sm);
+  cursor: pointer;
+  transition: var(--transition-base);
+}
+
+.btn-secondary:hover {
+  background: var(--primary);
+  color: white;
+}
+
+.btn-success {
+  background: var(--success);
+  color: white;
+  padding: 0.75rem 1.5rem;
+  border: none;
+  border-radius: var(--radius-lg);
+  font-weight: var(--font-weight-bold);
+  cursor: pointer;
+  transition: var(--transition-base);
+}
+
+.btn-success:hover {
+  filter: brightness(1.1);
+}
+
+/* ============================================
+   Magic Patterns - Form Styles
+   ============================================ */
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  margin-bottom: 1rem;
+}
+
+.form-label {
+  font-size: var(--text-sm);
+  font-weight: var(--font-weight-semibold);
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.form-input,
+.form-textarea {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-md);
+  padding: 0.75rem 1rem;
+  font-family: var(--font-family);
+  font-size: var(--text-sm);
+  color: var(--text-primary);
+  transition: var(--transition-base);
+}
+
+.form-input:focus,
+.form-textarea:focus {
+  outline: none;
+  border-color: var(--accent-cyan);
+  box-shadow: 0 0 0 3px rgba(6, 182, 212, 0.1);
+}
+
+.form-input::placeholder,
+.form-textarea::placeholder {
+  color: var(--text-light);
+}
+
+.form-textarea {
+  resize: vertical;
+  min-height: 100px;
+}
+
+/* ============================================
+   Magic Patterns - Card Styles
+   ============================================ */
+
+.card {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--border-color);
+  border-radius: var(--radius-xl);
+  padding: 1.5rem;
+  backdrop-filter: blur(10px);
+  transition: var(--transition-base);
+}
+
+.card:hover {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: var(--accent-cyan);
+  box-shadow: 0 8px 24px rgba(20, 184, 166, 0.15);
+}
+
+/* ============================================
+   Magic Patterns - Chip/Badge Styles
+   ============================================ */
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.25rem 0.75rem;
+  background: rgba(20, 184, 166, 0.1);
+  color: var(--accent-cyan);
+  border: 1px solid rgba(20, 184, 166, 0.3);
+  border-radius: var(--radius-full);
+  font-size: var(--text-xs);
+  font-weight: var(--font-weight-medium);
+}
+
+.chip.active {
+  background: rgba(20, 184, 166, 0.3);
+  border-color: var(--primary);
+}
+
+/* ============================================
+   Magic Patterns - Typography
+   ============================================ */
+
+.heading-1 {
+  font-size: 2.25rem;
+  font-weight: var(--font-weight-bold);
+  line-height: 1.2;
+  color: white;
+}
+
+.heading-2 {
+  font-size: 1.875rem;
+  font-weight: var(--font-weight-bold);
+  line-height: 1.3;
+  color: white;
+}
+
+.heading-3 {
+  font-size: 1.5rem;
+  font-weight: var(--font-weight-semibold);
+  line-height: 1.4;
+  color: white;
+}
+
+.subtitle {
+  font-size: var(--text-lg);
+  font-weight: var(--font-weight-light);
+  color: var(--text-secondary);
+}
+
+.body-text {
+  font-size: var(--text-base);
+  line-height: 1.6;
+  color: var(--text-primary);
+}
+
+.caption {
+  font-size: var(--text-xs);
   color: var(--text-light);
 }
 

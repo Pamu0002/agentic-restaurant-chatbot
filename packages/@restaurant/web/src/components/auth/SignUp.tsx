@@ -10,18 +10,17 @@
 
 import { initializeGoogleAuth, useAuth } from '@restaurant/shared';
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 
-interface SignUpProps {
-  onBack: () => void;
-  onSignUpSuccess: () => void;
-}
+interface SignUpProps {}
 
-export default function SignUp({ onBack, onSignUpSuccess }: SignUpProps) {
+export default function SignUp(): JSX.Element {
   // ============================================
-  // STATE
+  // HOOKS
   // ============================================
-
-  const { signup, isLoading } = useAuth();
+  
+  const navigate = useNavigate()
+  const { signup, isLoading } = useAuth()
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -114,7 +113,7 @@ export default function SignUp({ onBack, onSignUpSuccess }: SignUpProps) {
 
     try {
       await signup(formData.name, formData.email, formData.password);
-      onSignUpSuccess();
+      navigate('/chat');
     } catch (error) {
       setErrors({ submit: 'Sign up failed. Please try again.' });
     }
@@ -140,7 +139,7 @@ export default function SignUp({ onBack, onSignUpSuccess }: SignUpProps) {
       <div className="auth-card">
         {/* HEADER */}
         <div className="auth-header">
-          <button className="auth-back-btn" onClick={onBack}>
+          <button className="auth-back-btn" onClick={() => navigate('/')}>
             ← Back
           </button>
           <h2 className="auth-title">Create Account</h2>
@@ -264,7 +263,7 @@ export default function SignUp({ onBack, onSignUpSuccess }: SignUpProps) {
           Already have an account?{' '}
           <button
             type="button"
-            onClick={onBack}
+            onClick={() => navigate('/signin')}
             className="link-button"
           >
             Sign In

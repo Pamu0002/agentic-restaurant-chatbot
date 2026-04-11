@@ -4,17 +4,41 @@
  * USER STORIES:
  * 1. Display Welcome Screen on App Launch for new Users
  * 2. Display system logo and chatbot introduction
+ * 3. Allow guests to browse without authentication
  * 
  * This is the first screen users see when they launch the app
  * Shows the system logo and introduction to the chatbot
  */
 
+import { useState } from 'react';
+import { createGuestSession } from '../../services/guestService';
+
 interface WelcomeScreenProps {
   onSignIn: () => void;
   onSignUp: () => void;
+  onGuestContinue?: (guestId: string) => void;
 }
 
-export default function WelcomeScreen({ onSignIn, onSignUp }: WelcomeScreenProps) {
+export default function WelcomeScreen({ onSignIn, onSignUp, onGuestContinue }: WelcomeScreenProps) {
+  const [isCreatingGuest, setIsCreatingGuest] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const handleContinueAsGuest = async () => {
+    try {
+      setIsCreatingGuest(true);
+      setError(null);
+      console.log('🎯 Starting guest session creation...');
+      const session = await createGuestSession();
+      console.log('✅ Guest session created successfully, navigating to chat...');
+      onGuestContinue?.(session.guestId);
+    } catch (err: any) {
+      const errorMessage = err?.message || 'Failed to create guest session';
+      console.error('❌ Guest session error:', errorMessage);
+      setError(errorMessage);
+      setIsCreatingGuest(false);
+    }
+  };
+
   return (
     <div style={{
       height: '100vh',
@@ -88,11 +112,20 @@ export default function WelcomeScreen({ onSignIn, onSignUp }: WelcomeScreenProps
 
         {/* LOGO */}
         <div style={{
-          fontSize: '48px',
           marginBottom: '20px',
-          filter: 'drop-shadow(0 0 10px rgba(255, 215, 0, 0.3))',
+          display: 'flex',
+          justifyContent: 'center',
+          alignItems: 'center',
         }}>
-          🍽️
+          <img 
+            src="/chatbot_logo.png" 
+            alt="AgentDine Chatbot Logo"
+            style={{
+              height: '80px',
+              width: 'auto',
+              objectFit: 'contain',
+            }}
+          />
         </div>
 
         {/* BRAND NAME */}
@@ -103,7 +136,7 @@ export default function WelcomeScreen({ onSignIn, onSignUp }: WelcomeScreenProps
           margin: '0 0 20px 0',
           letterSpacing: '2px',
         }}>
-          DineBot
+          AgentDine
         </h1>
 
         {/* MAIN TAGLINE */}
@@ -138,6 +171,40 @@ export default function WelcomeScreen({ onSignIn, onSignUp }: WelcomeScreenProps
           gap: '12px',
           marginBottom: '30px',
         }}>
+          {/* GUEST BUTTON - PRIMARY CTA */}
+          <button
+            onClick={handleContinueAsGuest}
+            disabled={isCreatingGuest}
+            style={{
+              width: '100%',
+              padding: '14px 20px',
+              background: 'linear-gradient(135deg, #00d4ff 0%, #0099cc 100%)',
+              color: '#FDFCFB',
+              border: 'none',
+              borderRadius: '25px',
+              fontSize: '16px',
+              fontWeight: '700',
+              cursor: isCreatingGuest ? 'not-allowed' : 'pointer',
+              transition: 'all 0.3s ease',
+              boxShadow: '0 4px 15px rgba(0, 212, 255, 0.3)',
+              textTransform: 'uppercase',
+              letterSpacing: '1px',
+              opacity: isCreatingGuest ? 0.7 : 1,
+            }}
+            onMouseEnter={(e) => {
+              if (!isCreatingGuest) {
+                e.currentTarget.style.transform = 'translateY(-2px)';
+                e.currentTarget.style.boxShadow = '0 6px 20px rgba(0, 212, 255, 0.4)';
+              }
+            }}
+            onMouseLeave={(e) => {
+              e.currentTarget.style.transform = 'translateY(0)';
+              e.currentTarget.style.boxShadow = '0 4px 15px rgba(0, 212, 255, 0.3)';
+            }}
+          >
+            {isCreatingGuest ? '⏳ Starting...' : '👋 Continue as Guest'}
+          </button>
+
           {/* SIGN UP BUTTON */}
           <button
             onClick={onSignUp}
@@ -167,7 +234,7 @@ export default function WelcomeScreen({ onSignIn, onSignUp }: WelcomeScreenProps
               e.currentTarget.style.background = '#E64A19';
             }}
           >
-            Sign Up
+            Create Account
           </button>
 
           {/* LOG IN BUTTON */}
@@ -196,9 +263,29 @@ export default function WelcomeScreen({ onSignIn, onSignUp }: WelcomeScreenProps
               e.currentTarget.style.borderColor = 'rgba(100, 110, 130, 0.5)';
             }}
           >
-            Log In
+            Sign In
           </button>
         </div>
+
+        {/* ERROR MESSAGE */}
+        {error && (
+          <div style={{
+            background: 'rgba(220, 38, 38, 0.15)',
+            border: '1px solid rgba(220, 38, 38, 0.6)',
+            borderRadius: '10px',
+            padding: '12px 16px',
+            marginBottom: '20px',
+            color: '#ff8787',
+            fontSize: '13px',
+            lineHeight: '1.5',
+          }}>
+            <div style={{ marginBottom: '8px', fontWeight: '600' }}>⚠️ Error:</div>
+            <div style={{ marginBottom: '8px' }}>{error}</div>
+            <div style={{ fontSize: '12px', color: '#ffab91' }}>
+              ℹ️ Make sure backend API is running on http://localhost:5000
+            </div>
+          </div>
+        )}
 
         {/* DIVIDER */}
         <div style={{
