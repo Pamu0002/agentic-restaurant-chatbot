@@ -5,8 +5,6 @@
  */
 
 import { useEffect, useRef, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../../../shared/src/contexts/AuthContext';
 
 interface ChatInputProps {
   onSendMessage: (message: string) => void;
@@ -15,31 +13,11 @@ interface ChatInputProps {
 
 export default function ChatInput({ onSendMessage, isLoading }: ChatInputProps) {
   // ============================================
-  // HOOKS
-  // ============================================
-  
-  const { logout } = useAuth();
-  const navigate = useNavigate();
-
-  // ============================================
   // STATE
   // ============================================
 
   const [message, setMessage] = useState('');
   const textareaRef = useRef<HTMLTextAreaElement>(null);
-
-  // ============================================
-  // LOGOUT HANDLER
-  // ============================================
-
-  const handleLogout = async () => {
-    try {
-      await logout();
-      navigate('/');
-    } catch (error) {
-      console.error('Logout failed:', error);
-    }
-  };
 
   // ============================================
   // AUTO-RESIZE TEXTAREA
@@ -110,14 +88,6 @@ export default function ChatInput({ onSendMessage, isLoading }: ChatInputProps) 
           disabled={isLoading}
         >
           📋 My Bookings
-        </button>
-        <button
-          className="quick-action-btn"
-          onClick={handleLogout}
-          disabled={isLoading}
-          style={{ marginLeft: 'auto', backgroundColor: '#ef4444', color: 'white' }}
-        >
-          🚪 Logout
         </button>
       </div>
 

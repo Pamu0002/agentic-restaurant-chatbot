@@ -10,6 +10,7 @@
 
 import { useAuth } from '@restaurant/shared';
 import { useEffect, useRef, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { getGuestUser, isGuestUser } from '../services/guestService';
 import './UserProfileMenu.css';
 
@@ -33,6 +34,7 @@ interface UserProfileMenuProps {
 
 export default function UserProfileMenu({ onLogout }: UserProfileMenuProps) {
   const { user, logout } = useAuth();
+  const navigate = useNavigate();
   const guestUser = getGuestUser();
   const isGuest = isGuestUser();
 
@@ -141,11 +143,29 @@ export default function UserProfileMenu({ onLogout }: UserProfileMenuProps) {
 
   const handleLogout = async () => {
     try {
-      await logout();
+      if (isGuest) {
+        // Clear guest session from localStorage
+        localStorage.removeItem('guestSession');
+        localStorage.removeItem('guestToken');
+        console.log('✅ Guest session cleared');
+      } else {
+        // Logout authenticated user
+        await logout();
+        console.log('✅ User logged out');
+      }
+      
+      // Call the onLogout callback if provided
       onLogout?.();
+      
+      // Close the menu and navigate to home
       setIsOpen(false);
+      
+      // Navigate to home page
+      setTimeout(() => {
+        navigate('/');
+      }, 300);
     } catch (error) {
-      console.error('Logout failed:', error);
+      console.error('❌ Logout failed:', error);
       alert('Failed to logout. Please try again.');
     }
   };
@@ -210,7 +230,12 @@ export default function UserProfileMenu({ onLogout }: UserProfileMenuProps) {
 
             <div className="profile-dropdown-divider"></div>
 
-            <button className="profile-menu-item logout" onClick={handleLogout}>
+            <button 
+              type="button"
+              className="profile-menu-item logout" 
+              onClick={handleLogout}
+              style={{ pointerEvents: 'auto', cursor: 'pointer' }}
+            >
               <span className="profile-menu-icon">🚪</span>
               <span className="profile-menu-text">Logout</span>
             </button>

@@ -1,5 +1,5 @@
 import { motion } from 'framer-motion'
-import { Search, Calendar, Leaf, Flame, Lightbulb } from 'lucide-react'
+import { Calendar, Flame, Leaf, Lightbulb, Search } from 'lucide-react'
 
 interface EmptyChatStateProps {
   onQuickStart: (text: string) => void
