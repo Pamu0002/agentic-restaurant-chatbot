@@ -10,7 +10,7 @@
  * Shows the system logo and introduction to the chatbot
  */
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { createGuestSession } from '../../services/guestService';
 
 interface WelcomeScreenProps {
@@ -22,6 +22,16 @@ interface WelcomeScreenProps {
 export default function WelcomeScreen({ onSignIn, onSignUp, onGuestContinue }: WelcomeScreenProps) {
   const [isCreatingGuest, setIsCreatingGuest] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   const handleContinueAsGuest = async () => {
     try {
@@ -43,125 +53,198 @@ export default function WelcomeScreen({ onSignIn, onSignUp, onGuestContinue }: W
     <div style={{
       height: '100vh',
       width: '100vw',
-      background: 'linear-gradient(rgba(15, 20, 25, 0.7), rgba(26, 40, 56, 0.7)), url(/background-food.png)',
+      background: 'linear-gradient(135deg, rgba(20, 15, 25, 0.8), rgba(40, 25, 35, 0.8)), url(/background-food.png)',
       backgroundSize: 'cover',
       backgroundPosition: 'center',
       backgroundAttachment: 'fixed',
       display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
       margin: 0,
       padding: 0,
       overflow: 'hidden',
+      flexDirection: isMobile ? 'column' : 'row',
     }}>
-      {/* CARD CONTAINER */}
+      {/* LEFT HERO SECTION */}
       <div style={{
-        width: '100%',
-        maxWidth: '400px',
-        background: 'rgba(15, 20, 25, 0.95)',
-        border: '2px solid',
-        borderImage: 'linear-gradient(135deg, #00d4ff 0%, #0099cc 100%) 1',
-        borderRadius: '20px',
-        padding: '40px 30px',
+        flex: 1,
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: '40px 20px',
         textAlign: 'center',
-        boxShadow: '0 8px 32px rgba(0, 212, 255, 0.1), 0 0 60px rgba(0, 153, 204, 0.05)',
-        position: 'relative',
-        margin: '20px',
+        minHeight: isMobile ? '50vh' : '100vh',
       }}>
-        {/* BLUE CORNER ACCENTS */}
-        <div style={{
-          position: 'absolute',
-          top: '10px',
-          left: '10px',
-          width: '20px',
-          height: '20px',
-          borderTop: '2px solid #00d4ff',
-          borderLeft: '2px solid #00d4ff',
-          borderRadius: '2px',
-        }} />
-        <div style={{
-          position: 'absolute',
-          top: '10px',
-          right: '10px',
-          width: '20px',
-          height: '20px',
-          borderTop: '2px solid #00d4ff',
-          borderRight: '2px solid #00d4ff',
-          borderRadius: '2px',
-        }} />
-        <div style={{
-          position: 'absolute',
-          bottom: '10px',
-          left: '10px',
-          width: '20px',
-          height: '20px',
-          borderBottom: '2px solid #00d4ff',
-          borderLeft: '2px solid #00d4ff',
-          borderRadius: '2px',
-        }} />
-        <div style={{
-          position: 'absolute',
-          bottom: '10px',
-          right: '10px',
-          width: '20px',
-          height: '20px',
-          borderBottom: '2px solid #00d4ff',
-          borderRight: '2px solid #00d4ff',
-          borderRadius: '2px',
-        }} />
-
         {/* LOGO */}
         <div style={{
-          marginBottom: '20px',
+          marginBottom: '30px',
           display: 'flex',
           justifyContent: 'center',
           alignItems: 'center',
+          animation: 'fadeInDown 0.8s ease',
         }}>
           <img 
             src="/chatbot_logo.png" 
             alt="AgentDine Chatbot Logo"
             style={{
-              height: '80px',
+              height: '100px',
               width: 'auto',
               objectFit: 'contain',
+              filter: 'drop-shadow(0 0 25px rgba(255, 107, 53, 0.5))',
             }}
           />
         </div>
 
         {/* BRAND NAME */}
         <h1 style={{
-          fontSize: '32px',
-          fontWeight: '700',
-          color: '#ffffff',
-          margin: '0 0 20px 0',
-          letterSpacing: '2px',
+          fontSize: isMobile ? '36px' : '52px',
+          fontWeight: '800',
+          color: '#FF8C42',
+          margin: '0 0 15px 0',
+          letterSpacing: '3px',
+          textShadow: '0 0 30px rgba(255, 107, 53, 0.4)',
         }}>
           AgentDine
         </h1>
 
         {/* MAIN TAGLINE */}
         <h2 style={{
-          fontSize: '28px',
-          fontWeight: '600',
+          fontSize: isMobile ? '24px' : '38px',
+          fontWeight: '700',
           color: '#ffffff',
           margin: '0 0 20px 0',
-          lineHeight: '1.4',
+          lineHeight: '1.3',
+          maxWidth: '500px',
         }}>
-          Discover Your<br />
-          Perfect<br />
-          Restaurant,<br />
-          Instantly
+          Discover Your Perfect Restaurant,<br />
+          <span style={{ background: 'linear-gradient(135deg, #FF6B35, #FFD700)', 
+                         WebkitBackgroundClip: 'text', 
+                         WebkitTextFillColor: 'transparent',
+                         backgroundClip: 'text' }}>
+            Instantly
+          </span>
         </h2>
 
         {/* SUBTITLE */}
         <p style={{
-          fontSize: '14px',
+          fontSize: isMobile ? '13px' : '16px',
           color: '#b0b8c1',
           margin: '0 0 40px 0',
+          lineHeight: '1.6',
+          maxWidth: '500px',
+        }}>
+          Chat with our AI assistant to find restaurants tailored to your taste, <br />
+          get personalized recommendations, and book instantly.
+        </p>
+
+        {/* FEATURES - DESKTOP ONLY */}
+        {!isMobile && (
+          <div style={{
+            display: 'flex',
+            gap: '30px',
+            justifyContent: 'center',
+            flexWrap: 'wrap',
+            maxWidth: '600px',
+          }}>
+            {[
+              { icon: '🤖', label: 'AI-Powered', desc: 'Smart recommendations' },
+              { icon: '⚡', label: 'Instant Booking', desc: 'Reserve in seconds' },
+              { icon: '❤️', label: 'Personalized', desc: 'Just for you' },
+            ].map((feature, idx) => (
+              <div key={idx} style={{
+                textAlign: 'center',
+              }}>
+                <div style={{ fontSize: '32px', marginBottom: '8px' }}>{feature.icon}</div>
+                <div style={{ fontSize: '13px', fontWeight: '700', color: '#FF8C42' }}>{feature.label}</div>
+                <div style={{ fontSize: '11px', color: '#b0b8c1' }}>{feature.desc}</div>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* RIGHT ACTION PANEL */}
+      <div style={{
+        flex: '0 0 auto',
+        width: isMobile ? '100%' : '420px',
+        display: 'flex',
+        alignItems: 'center',
+        justifyContent: 'center',
+        padding: '40px 20px',
+        minHeight: isMobile ? '50vh' : '100vh',
+      }}>
+        {/* CARD CONTAINER */}
+        <div style={{
+          width: '100%',
+          maxWidth: isMobile ? '100%' : '380px',
+          background: 'rgba(15, 20, 25, 0.95)',
+          border: '2px solid',
+          borderImage: 'linear-gradient(135deg, #FF8C42 0%, #FFB84D 100%) 1',
+          borderRadius: '20px',
+          padding: '40px 30px',
+          textAlign: 'center',
+          boxShadow: '0 8px 32px rgba(255, 107, 53, 0.15), 0 0 60px rgba(255, 140, 66, 0.08)',
+          position: 'relative',
+        }}>
+        {/* CORNER ACCENTS */}
+        <div style={{
+          position: 'absolute',
+          top: '10px',
+          left: '10px',
+          width: '20px',
+          height: '20px',
+          borderTop: '2px solid #FF8C42',
+          borderLeft: '2px solid #FF8C42',
+          borderRadius: '2px',
+        }} />
+        <div style={{
+          position: 'absolute',
+          top: '10px',
+          right: '10px',
+          width: '20px',
+          height: '20px',
+          borderTop: '2px solid #FF8C42',
+          borderRight: '2px solid #FF8C42',
+          borderRadius: '2px',
+        }} />
+        <div style={{
+          position: 'absolute',
+          bottom: '10px',
+          left: '10px',
+          width: '20px',
+          height: '20px',
+          borderBottom: '2px solid #FF8C42',
+          borderLeft: '2px solid #FF8C42',
+          borderRadius: '2px',
+        }} />
+        <div style={{
+          position: 'absolute',
+          bottom: '10px',
+          right: '10px',
+          width: '20px',
+          height: '20px',
+          borderBottom: '2px solid #FF8C42',
+          borderRight: '2px solid #FF8C42',
+          borderRadius: '2px',
+        }} />
+
+        {/* TITLE - FOR ACTION PANEL */}
+        <h3 style={{
+          fontSize: '24px',
+          fontWeight: '700',
+          color: '#ffffff',
+          margin: '0 0 10px 0',
+          letterSpacing: '1px',
+        }}>
+          Welcome Back
+        </h3>
+
+        <p style={{
+          fontSize: '13px',
+          color: '#b0b8c1',
+          margin: '0 0 30px 0',
           lineHeight: '1.5',
         }}>
-          Tell our chatbot what you're craving and find<br />
-          the best spots in seconds.
+          Sign in to your account or create a new one to get started.
         </p>
 
         {/* BUTTONS */}
@@ -178,7 +261,7 @@ export default function WelcomeScreen({ onSignIn, onSignUp, onGuestContinue }: W
             style={{
               width: '100%',
               padding: '14px 20px',
-              background: 'linear-gradient(135deg, #00d4ff 0%, #0099cc 100%)',
+              background: 'linear-gradient(135deg, #FF6B35 0%, #FF8C42 100%)',
               color: '#FDFCFB',
               border: 'none',
               borderRadius: '25px',
@@ -186,7 +269,7 @@ export default function WelcomeScreen({ onSignIn, onSignUp, onGuestContinue }: W
               fontWeight: '700',
               cursor: isCreatingGuest ? 'not-allowed' : 'pointer',
               transition: 'all 0.3s ease',
-              boxShadow: '0 4px 15px rgba(0, 212, 255, 0.3)',
+              boxShadow: '0 4px 15px rgba(255, 107, 53, 0.4)',
               textTransform: 'uppercase',
               letterSpacing: '1px',
               opacity: isCreatingGuest ? 0.7 : 1,
@@ -194,12 +277,12 @@ export default function WelcomeScreen({ onSignIn, onSignUp, onGuestContinue }: W
             onMouseEnter={(e) => {
               if (!isCreatingGuest) {
                 e.currentTarget.style.transform = 'translateY(-2px)';
-                e.currentTarget.style.boxShadow = '0 6px 20px rgba(0, 212, 255, 0.4)';
+                e.currentTarget.style.boxShadow = '0 6px 20px rgba(255, 107, 53, 0.5)';
               }
             }}
             onMouseLeave={(e) => {
               e.currentTarget.style.transform = 'translateY(0)';
-              e.currentTarget.style.boxShadow = '0 4px 15px rgba(0, 212, 255, 0.3)';
+              e.currentTarget.style.boxShadow = '0 4px 15px rgba(255, 107, 53, 0.4)';
             }}
           >
             {isCreatingGuest ? '⏳ Starting...' : '👋 Continue as Guest'}
@@ -211,7 +294,7 @@ export default function WelcomeScreen({ onSignIn, onSignUp, onGuestContinue }: W
             style={{
               width: '100%',
               padding: '14px 20px',
-              background: '#E64A19',
+              background: '#E63946',
               color: '#FDFCFB',
               border: 'none',
               borderRadius: '25px',
@@ -219,19 +302,19 @@ export default function WelcomeScreen({ onSignIn, onSignUp, onGuestContinue }: W
               fontWeight: '600',
               cursor: 'pointer',
               transition: 'all 0.3s ease',
-              boxShadow: '0 4px 15px rgba(230, 74, 25, 0.3)',
+              boxShadow: '0 4px 15px rgba(230, 57, 70, 0.4)',
               textTransform: 'uppercase',
               letterSpacing: '1px',
             }}
             onMouseEnter={(e) => {
               e.currentTarget.style.transform = 'translateY(-2px)';
-              e.currentTarget.style.boxShadow = '0 6px 20px rgba(230, 74, 25, 0.4)';
-              e.currentTarget.style.background = '#C62828';
+              e.currentTarget.style.boxShadow = '0 6px 20px rgba(230, 57, 70, 0.5)';
+              e.currentTarget.style.background = '#D62828';
             }}
             onMouseLeave={(e) => {
               e.currentTarget.style.transform = 'translateY(0)';
-              e.currentTarget.style.boxShadow = '0 4px 15px rgba(230, 74, 25, 0.3)';
-              e.currentTarget.style.background = '#E64A19';
+              e.currentTarget.style.boxShadow = '0 4px 15px rgba(230, 57, 70, 0.4)';
+              e.currentTarget.style.background = '#E63946';
             }}
           >
             Create Account
@@ -243,9 +326,9 @@ export default function WelcomeScreen({ onSignIn, onSignUp, onGuestContinue }: W
             style={{
               width: '100%',
               padding: '14px 20px',
-              background: 'rgba(80, 90, 105, 0.5)',
+              background: 'rgba(100, 80, 85, 0.4)',
               color: '#ffffff',
-              border: '1px solid rgba(100, 110, 130, 0.5)',
+              border: '1px solid rgba(255, 140, 66, 0.4)',
               borderRadius: '25px',
               fontSize: '16px',
               fontWeight: '600',
@@ -255,12 +338,12 @@ export default function WelcomeScreen({ onSignIn, onSignUp, onGuestContinue }: W
               letterSpacing: '1px',
             }}
             onMouseEnter={(e) => {
-              e.currentTarget.style.background = 'rgba(100, 110, 130, 0.7)';
-              e.currentTarget.style.borderColor = 'rgba(150, 160, 180, 0.7)';
+              e.currentTarget.style.background = 'rgba(255, 140, 66, 0.2)';
+              e.currentTarget.style.borderColor = 'rgba(255, 140, 66, 0.6)';
             }}
             onMouseLeave={(e) => {
-              e.currentTarget.style.background = 'rgba(80, 90, 105, 0.5)';
-              e.currentTarget.style.borderColor = 'rgba(100, 110, 130, 0.5)';
+              e.currentTarget.style.background = 'rgba(100, 80, 85, 0.4)';
+              e.currentTarget.style.borderColor = 'rgba(255, 140, 66, 0.4)';
             }}
           >
             Sign In
@@ -270,12 +353,12 @@ export default function WelcomeScreen({ onSignIn, onSignUp, onGuestContinue }: W
         {/* ERROR MESSAGE */}
         {error && (
           <div style={{
-            background: 'rgba(220, 38, 38, 0.15)',
-            border: '1px solid rgba(220, 38, 38, 0.6)',
+            background: 'rgba(230, 57, 70, 0.15)',
+            border: '1px solid rgba(230, 57, 70, 0.6)',
             borderRadius: '10px',
             padding: '12px 16px',
             marginBottom: '20px',
-            color: '#ff8787',
+            color: '#FF8C7A',
             fontSize: '13px',
             lineHeight: '1.5',
           }}>
@@ -311,10 +394,10 @@ export default function WelcomeScreen({ onSignIn, onSignUp, onGuestContinue }: W
             height: '40px',
           }}>
             {[
-              { bg: '#FF6B6B', initial: '👨' },
-              { bg: '#4ECDC4', initial: '👩' },
-              { bg: '#FFE66D', initial: '👨' },
-              { bg: '#95E1D3', initial: '👩' },
+              { bg: '#FF8C42', initial: '👨' },
+              { bg: '#FFB84D', initial: '👩' },
+              { bg: '#E63946', initial: '👨' },
+              { bg: '#F4A460', initial: '👩' },
             ].map((avatar, idx) => (
               <div
                 key={idx}
@@ -327,7 +410,7 @@ export default function WelcomeScreen({ onSignIn, onSignUp, onGuestContinue }: W
                   alignItems: 'center',
                   justifyContent: 'center',
                   fontSize: '18px',
-                  border: '2px solid #0f1419',
+                  border: '2px solid #1a1218',
                   marginLeft: idx > 0 ? '-12px' : '0',
                   zIndex: 4 - idx,
                 }}
@@ -348,6 +431,7 @@ export default function WelcomeScreen({ onSignIn, onSignUp, onGuestContinue }: W
           }}>
             JOIN 10,000+ FOOD LOVERS
           </p>
+        </div>
         </div>
       </div>
     </div>

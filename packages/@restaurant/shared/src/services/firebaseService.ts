@@ -122,7 +122,7 @@ export const initializeGoogleAuth = (): string => {
     throw new Error('Google Client ID is not configured. Check VITE_GOOGLE_CLIENT_ID in .env.local');
   }
   
-  const redirectUri = `${typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000'}/auth/google/callback`;
+  const redirectUri = `${typeof window !== 'undefined' ? window.location.origin : 'http://localhost:3000'}/auth/google-callback`;
   
   console.log(`🔐 Google OAuth URL Generator:
   Client ID: ${googleClientId}
@@ -132,7 +132,7 @@ export const initializeGoogleAuth = (): string => {
   const params = new URLSearchParams({
     client_id: googleClientId,
     redirect_uri: redirectUri,
-    response_type: 'id_token',
+    response_type: 'id_token token',
     scope: 'openid email profile',
     nonce: generateNonce(),
   });
