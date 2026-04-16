@@ -1,81 +1,148 @@
-/**
- * FLOATING CHAT WIDGET
- * 
- * Industry-standard floating chat bubble in bottom-right corner
- * Can be collapsed/expanded for both web and mobile
- */
+import { MessageCircle, Send, X } from 'lucide-react';
+import { useState } from 'react';
+import { useChat } from '../../context/ChatContext';
+import styles from './FloatingChatWidget.module.css';
 
-import { useEffect, useState } from 'react';
-import ChatInterface from './ChatInterface';
-import './FloatingChatWidget.css';
-
-interface FloatingChatWidgetProps {
-  userName?: string;
-  showHeader?: boolean;
-  initialIsOpen?: boolean;
-  onOpenChange?: (isOpen: boolean) => void;
+interface Message {
+  id: string;
+  type: 'user' | 'bot';
+  text: string;
+  timestamp: Date;
 }
 
-export default function FloatingChatWidget({ 
-  userName = 'Friend',
-  showHeader = true,
-  initialIsOpen = false,
-  onOpenChange,
-}: FloatingChatWidgetProps) {
-  const [isOpen, setIsOpen] = useState(initialIsOpen);
-  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+export default function FloatingChatWidget() {
+  const { isOpen, openChat, closeChat } = useChat();
+  const [messages, setMessages] = useState<Message[]>([
+    {
+      id: '1',
+      type: 'bot',
+      text: '👋 Welcome to AgentDine! How can I help you find the perfect restaurant today?',
+      timestamp: new Date()
+    }
+  ]);
+  const [inputValue, setInputValue] = useState('');
+  const [isTyping, setIsTyping] = useState(false);
 
-  // Sync isOpen with parent when initialIsOpen changes
-  useEffect(() => {
-    setIsOpen(initialIsOpen);
-  }, [initialIsOpen]);
+  const handleSendMessage = async () => {
+    if (!inputValue.trim()) return;
 
-  // Toggle based on screen size
-  useEffect(() => {
-    const handleResize = () => {
-      const mobile = window.innerWidth < 768;
-      setIsMobile(mobile);
-      // Close widget on mobile by default
-      if (mobile && isOpen) {
-        setIsOpen(false);
-      }
+    // Add user message
+    const userMessage: Message = {
+      id: Date.now().toString(),
+      type: 'user',
+      text: inputValue,
+      timestamp: new Date()
     };
 
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, [isOpen]);
+    setMessages((prev) => [...prev, userMessage]);
+    setInputValue('');
+    setIsTyping(true);
 
-  const handleToggle = () => {
-    const newState = !isOpen;
-    setIsOpen(newState);
-    onOpenChange?.(newState);
+    // Simulate bot response delay
+    setTimeout(() => {
+      const botMessage: Message = {
+        id: (Date.now() + 1).toString(),
+        type: 'bot',
+        text: `I'm an AI assistant. I received your message: "${inputValue}". How else can I help you?`,
+        timestamp: new Date()
+      };
+      setMessages((prev) => [...prev, botMessage]);
+      setIsTyping(false);
+    }, 1000);
+  };
+
+  const handleKeyPress = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      handleSendMessage();
+    }
   };
 
   return (
-    <div className="floating-chat-widget">
-      {/* CHAT WINDOW - Only show if open */}
-      {isOpen && (
-        <div className={`chat-window ${isMobile ? 'mobile' : 'desktop'}`}>
-          <ChatInterface 
-            userName={userName}
-            showHeader={showHeader}
-          />
-        </div>
-      )}
-
-      {/* CHAT TOGGLE BUTTON */}
-      <button
-        className={`chat-toggle-button ${isOpen ? 'open' : 'closed'}`}
-        onClick={handleToggle}
-        title={isOpen ? 'Close chat' : 'Open chat'}
-        aria-label={isOpen ? 'Close chat' : 'Open chat'}
-      >
-        {isOpen ? (
-          <span className="close-icon">✕</span>
-        ) : (
-          <span className="chat-icon">💬</span>
+    <>
+      {/* Chat Widget Container */}
+      <div className={styles.widgetContainer}>
+        {/* Floating Button (Minimized) */}
+        {!isOpen && (
+          <button
+            onClick={openChat}
+            className={styles.floatingButton}
+            title="Chat with AgentDine"
+          >
+            <MessageCircle size={28} />
+          </button>
         )}
-      </button>
-    </div>
+
+        {/* Chat Panel (Expanded) */}
+        {isOpen && (
+          <div className={styles.chatPanel}>
+            {/* Header */}
+            <div className={styles.chatHeader}>
+              <div className={styles.headerInfo}>
+                <MessageCircle size={20} />
+                <div>
+                  <h3 className={styles.headerTitle}>AgentDine Assistant</h3>
+                  <p className={styles.headerStatus}>Online now</p>
+                </div>
+              </div>
+              <button
+                onClick={closeChat}
+                className={styles.closeButton}
+                title="Close chat"
+              >
+                <X size={20} />
+              </button>
+            </div>
+
+            {/* Messages Container */}
+            <div className={styles.messagesContainer}>
+              {messages.map((message) => (
+                <div
+                  key={message.id}
+                  className={`${styles.messageWrapper} ${
+                    message.type === 'user' ? styles.messageWrapperUser : styles.messageWrapperBot
+                  }`}
+                >
+                  <div
+                    className={`${styles.messageBubble} ${
+                      message.type === 'user' ? styles.messageBubbleUser : styles.messageBubbleBot
+                    }`}
+                  >
+                    {message.text}
+                  </div>
+                </div>
+              ))}
+
+              {/* Typing Indicator */}
+              {isTyping && (
+                <div className={styles.typingIndicator}>
+                  <div className={styles.typingDot} />
+                  <div className={styles.typingDot} />
+                  <div className={styles.typingDot} />
+                </div>
+              )}
+            </div>
+
+            {/* Input Area */}
+            <div className={styles.inputArea}>
+              <textarea
+                value={inputValue}
+                onChange={(e) => setInputValue(e.target.value)}
+                onKeyPress={handleKeyPress}
+                placeholder="Ask me anything..."
+                className={styles.inputField}
+              />
+              <button
+                onClick={handleSendMessage}
+                className={styles.sendButton}
+                title="Send message"
+              >
+                <Send size={20} />
+              </button>
+            </div>
+          </div>
+        )}
+      </div>
+    </>
   );
 }

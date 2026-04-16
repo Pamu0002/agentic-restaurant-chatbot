@@ -6,17 +6,18 @@ import SignUp from './components/auth/SignUp'
 import BookingStep1 from './components/booking/BookingStep1'
 import BookingStep2 from './components/booking/BookingStep2'
 import BookingStep3 from './components/booking/BookingStep3'
-import Header from './components/layout/Header'
-import LandingPage from './components/common/LandingPage'
+import FloatingChatWidget from './components/chat/FloatingChatWidget'
+import UserProfile from './components/common/UserProfile'
+import Header from './components/layout/Header_new'
+import ProtectedRoute from './components/layout/ProtectedRoute'
 import BookingsHistory from './components/profile/BookingsHistory'
 import PreferencesSettings from './components/profile/PreferencesSettings'
-import ProtectedRoute from './components/layout/ProtectedRoute'
 import RestaurantDetails from './components/restaurant/RestaurantDetails'
-import RestaurantDiscovery from './components/restaurant/RestaurantDiscovery'
-import UserProfile from './components/common/UserProfile'
-import HomePage from './pages/HomePage'
-import SearchPage from './pages/SearchPage'
+import { ChatProvider } from './context/ChatContext'
 import './index.css'
+import HomePage from './pages/HomePage'
+import LandingPage from './pages/LandingPage'
+import SearchPage from './pages/SearchPage'
 
 function AppRoutes() {
   const navigate = useNavigate()
@@ -26,13 +27,7 @@ function AppRoutes() {
       {/* Landing Page - Public */}
       <Route 
         path="/" 
-        element={
-          <LandingPage 
-            onSignIn={() => navigate('/signin')}
-            onSignUp={() => navigate('/signup')}
-            onDiscoverRestaurants={() => navigate('/restaurants')}
-          />
-        } 
+        element={<LandingPage />}
       />
 
       {/* Home Page - Authenticated */}
@@ -50,27 +45,16 @@ function AppRoutes() {
       <Route path="/signup" element={<SignUp />} />
       <Route path="/auth/google-callback" element={<GoogleCallback />} />
       
-      {/* Protected: Restaurant Search & Discovery */}
+      {/* Public: Restaurant Search & Discovery */}
       <Route 
         path="/restaurants" 
-        element={
-          <ProtectedRoute>
-            <SearchPage />
-          </ProtectedRoute>
-        }
+        element={<SearchPage />}
       />
 
-      {/* Protected: Restaurant Details */}
+      {/* Public: Restaurant Details */}
       <Route 
         path="/restaurants/:id" 
-        element={
-          <ProtectedRoute>
-            <RestaurantDetails 
-              onBackClick={() => navigate('/restaurants')}
-              onBookingStart={(id) => navigate(`/booking/step1`, { state: { restaurantId: id } })}
-            />
-          </ProtectedRoute>
-        }
+        element={<RestaurantDetails />}
       />
 
       {/* Protected: Booking Flow */}
@@ -118,16 +102,25 @@ function AppRoutes() {
         }
       />
 
-      {/* Placeholder: How it Works (Protected) */}
+      {/* Placeholder: How it Works (Public) */}
       <Route
         path="/how-it-works"
         element={
-          <ProtectedRoute>
-            <div style={{ padding: '40px', textAlign: 'center' }}>
-              <h1>How it Works</h1>
-              <p>Coming soon...</p>
-            </div>
-          </ProtectedRoute>
+          <div style={{ padding: '40px', textAlign: 'center', marginTop: '80px' }}>
+            <h1>How it Works</h1>
+            <p>Coming soon...</p>
+          </div>
+        }
+      />
+
+      {/* Placeholder: About (Public) */}
+      <Route
+        path="/about"
+        element={
+          <div style={{ padding: '40px', textAlign: 'center', marginTop: '80px' }}>
+            <h1>About AgentDine</h1>
+            <p>Coming soon...</p>
+          </div>
         }
       />
 
@@ -175,12 +168,15 @@ export function App() {
   return (
     <AuthProvider>
       <UserProfileProvider>
-        <BrowserRouter>
-          <div className="w-full min-h-screen bg-gradient-to-br from-slate-900 to-purple-900 text-white font-sans selection:bg-teal-500/30">
-            <Header />
-            <AppRoutes />
-          </div>
-        </BrowserRouter>
+        <ChatProvider>
+          <BrowserRouter>
+            <div className="w-full min-h-screen bg-gradient-to-br from-slate-900 to-purple-900 text-white font-sans selection:bg-orange-500/30">
+              <Header />
+              <AppRoutes />
+              <FloatingChatWidget />
+            </div>
+          </BrowserRouter>
+        </ChatProvider>
       </UserProfileProvider>
     </AuthProvider>
   )

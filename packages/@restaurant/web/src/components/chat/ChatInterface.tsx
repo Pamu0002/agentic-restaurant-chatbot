@@ -22,12 +22,12 @@ import {
     shouldCallAgent,
 } from '../../services/chatService';
 import { getGuestUser, getSessionToken, isGuestUser } from '../../services/guestService';
+import RestaurantCard from '../common/RestaurantCard';
 import ChatInput from './ChatInput';
 import ConversationHeader from './ConversationHeader';
 import EmptyChatState from './EmptyChatState';
 import MessageBubble from './MessageBubble';
 import QuickReplyChips from './QuickReplyChips';
-import RestaurantCard from '../common/RestaurantCard';
 
 interface Message {
   id: string;

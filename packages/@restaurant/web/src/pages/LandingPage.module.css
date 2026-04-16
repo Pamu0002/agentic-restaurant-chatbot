@@ -1,0 +1,361 @@
+/* Landing Page Component Styles - CSS Modules */
+
+.page {
+  background: var(--background-main);
+  color: var(--text-primary);
+}
+
+/* Hero Section */
+.heroSection {
+  margin-top: 80px;
+  min-height: 80vh;
+  background: var(--gradient-background);
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: center;
+  gap: 60px;
+  padding: 80px 60px;
+  max-width: 1440px;
+  margin: 80px auto 0 auto;
+}
+
+/* Hero Content */
+.heroContent {
+}
+
+.heroTitle {
+  font-size: 52px;
+  font-weight: 700;
+  margin-bottom: 20px;
+  line-height: 1.2;
+}
+
+.heroSubtitle {
+  font-size: 20px;
+  color: var(--text-secondary);
+  margin-bottom: 40px;
+  line-height: 1.6;
+}
+
+/* Feature Bullets */
+.featureBullets {
+  margin-bottom: 40px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.featureBullet {
+  display: flex;
+  gap: 12px;
+  align-items: flex-start;
+}
+
+.bulletIcon {
+  color: var(--primary-base);
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.bulletContent {
+}
+
+.bulletTitle {
+  font-weight: 600;
+  margin-bottom: 4px;
+}
+
+.bulletDescription {
+  font-size: 14px;
+  color: var(--text-secondary);
+}
+
+/* CTA Buttons Section */
+.ctaButtons {
+  display: flex;
+  gap: 20px;
+}
+
+.ctaButtonPrimary {
+  padding: 16px 40px;
+  background: var(--gradient-primary);
+  color: white;
+  text-decoration: none;
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: all 0.3s ease;
+  box-shadow: 0 8px 24px rgba(255, 107, 53, 0.3);
+  border: none;
+  cursor: pointer;
+}
+
+.ctaButtonPrimary:hover {
+  box-shadow: 0 12px 32px rgba(255, 107, 53, 0.5);
+  transform: translateY(-4px);
+}
+
+.ctaButtonSecondary {
+  padding: 16px 40px;
+  background: transparent;
+  border: 2px solid var(--primary-base);
+  color: var(--primary-base);
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 16px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ctaButtonSecondary:hover {
+  background: var(--primary-base);
+  color: white;
+}
+
+/* Hero Image */
+.heroImage {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: float 3s ease-in-out infinite;
+}
+
+.heroImageFile {
+  max-width: 100%;
+  height: auto;
+  max-height: 500px;
+  object-fit: contain;
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-20px);
+  }
+}
+
+/* Stats Section */
+.statsSection {
+  padding: 80px 60px;
+  max-width: 1440px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 60px;
+  text-align: center;
+}
+
+.statItem {
+}
+
+.statNumber {
+  font-size: 48px;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.statNumberPrimary {
+  color: var(--primary-base);
+}
+
+.statNumberWarning {
+  color: var(--secondary-warning);
+}
+
+.statNumberSuccess {
+  color: var(--secondary-success);
+}
+
+.statNumberLight {
+  color: var(--primary-light);
+}
+
+.statLabel {
+  color: var(--text-secondary);
+  font-size: 16px;
+}
+
+/* Featured Restaurants Section */
+.featuredSection {
+  padding: 80px 60px;
+  max-width: 1440px;
+  margin: 0 auto;
+}
+
+.sectionHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 60px;
+}
+
+.sectionTitle {
+  font-size: 40px;
+  font-weight: 700;
+}
+
+.viewAllLink {
+  color: var(--primary-base);
+  text-decoration: none;
+  font-size: 16px;
+  font-weight: 600;
+  transition: all 0.3s ease;
+}
+
+.viewAllLink:hover {
+  color: var(--primary-light);
+}
+
+/* Restaurant Grid in Landing */
+.restaurantGridContainer {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 30px;
+}
+
+/* Top Rated Section */
+.topRatedSection {
+  padding: 80px 60px;
+  max-width: 1440px;
+  margin: 0 auto;
+}
+
+/* Footer */
+.footer {
+  padding: 60px;
+  background: linear-gradient(180deg, transparent, rgba(255, 107, 53, 0.1));
+  border-top: 1px solid var(--border-default);
+  text-align: center;
+  color: var(--text-secondary);
+  font-size: 14px;
+}
+
+/* Responsive - Tablet */
+@media (max-width: 1024px) {
+  .heroSection {
+    grid-template-columns: 1fr;
+    gap: 40px;
+    padding: 60px 40px;
+    margin-top: 80px;
+  }
+
+  .statsSection {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 40px;
+    padding: 60px 40px;
+  }
+
+  .featuredSection {
+    padding: 60px 40px;
+  }
+
+  .restaurantGridContainer {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+  }
+
+  .heroTitle {
+    font-size: 40px;
+  }
+
+  .heroSubtitle {
+    font-size: 16px;
+  }
+
+  .statNumber {
+    font-size: 36px;
+  }
+
+  .sectionTitle {
+    font-size: 32px;
+  }
+
+  .ctaButtons {
+    gap: 12px;
+  }
+
+  .ctaButtonPrimary,
+  .ctaButtonSecondary {
+    padding: 12px 24px;
+    font-size: 14px;
+  }
+}
+
+/* Responsive - Mobile */
+@media (max-width: 640px) {
+  .heroSection {
+    grid-template-columns: 1fr;
+    gap: 20px;
+    padding: 40px 20px;
+    margin-top: 80px;
+  }
+
+  .statsSection {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+    padding: 40px 20px;
+  }
+
+  .featuredSection {
+    padding: 40px 20px;
+  }
+
+  .topRatedSection {
+    padding: 40px 20px;
+  }
+
+  .restaurantGridContainer {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .heroTitle {
+    font-size: 28px;
+  }
+
+  .heroSubtitle {
+    font-size: 14px;
+    margin-bottom: 20px;
+  }
+
+  .featureBullets {
+    gap: 12px;
+    margin-bottom: 20px;
+  }
+
+  .ctaButtons {
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .ctaButtonPrimary,
+  .ctaButtonSecondary {
+    padding: 12px 20px;
+    font-size: 13px;
+    justify-content: center;
+  }
+
+  .statNumber {
+    font-size: 28px;
+  }
+
+  .statLabel {
+    font-size: 12px;
+  }
+
+  .sectionTitle {
+    font-size: 24px;
+  }
+
+  .viewAllLink {
+    font-size: 13px;
+  }
+}

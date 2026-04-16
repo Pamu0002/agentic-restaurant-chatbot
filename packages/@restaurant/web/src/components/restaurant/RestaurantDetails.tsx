@@ -12,7 +12,8 @@
  * Route: /restaurants/:id
  */
 
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
+import { useNavigate, useParams } from 'react-router-dom';
 import './RestaurantDetails.css';
 
 interface Restaurant {
@@ -42,10 +43,14 @@ interface RestaurantDetailsProps {
 type TabType = 'overview' | 'menu' | 'reviews' | 'photos';
 
 export default function RestaurantDetails({ 
-  restaurantId = '1', 
+  restaurantId: propRestaurantId, 
   onBackClick, 
   onBookingStart 
 }: RestaurantDetailsProps) {
+  const { id: urlRestaurantId } = useParams<{ id: string }>();
+  const navigate = useNavigate();
+  const restaurantId = urlRestaurantId || propRestaurantId || '1';
+  
   const [activeTab, setActiveTab] = useState<TabType>('overview');
   const [isMobile, setIsMobile] = useState(window.innerWidth < 1024);
   const [bookingOpen, setBookingOpen] = useState(!isMobile);
@@ -120,7 +125,7 @@ export default function RestaurantDetails({
     <div className="restaurant-details">
       {/* HEADER */}
       <header className="details-header">
-        <button className="back-btn" onClick={onBackClick}>← Back to Restaurants</button>
+        <button className="back-btn" onClick={() => onBackClick ? onBackClick() : navigate('/restaurants')}>← Back to Restaurants</button>
         <h1 className="header-title">{restaurant.name}</h1>
         <button className="favorite-btn">❤️ Save</button>
       </header>
@@ -373,7 +378,13 @@ export default function RestaurantDetails({
 
               <button 
                 className="btn-book-now"
-                onClick={() => onBookingStart?.(restaurant.id)}
+                onClick={() => {
+                  if (onBookingStart) {
+                    onBookingStart(restaurant.id);
+                  } else {
+                    navigate(`/booking/step1`, { state: { restaurantId: restaurant.id } });
+                  }
+                }}
               >
                 Book Now
               </button>

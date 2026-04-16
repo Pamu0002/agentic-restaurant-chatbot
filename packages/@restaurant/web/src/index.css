@@ -12,16 +12,16 @@
    ============================================ */
 
 :root {
-  /* Primary Colors - Teal & Cyan */
-  --primary: #14B8A6;           /* teal-500 */
-  --primary-hover: #0D9488;     /* teal-600 */
-  --primary-light: #CCFBF1;     /* teal-100 */
-  --primary-dark: #0F766E;      /* teal-700 */
+  /* Primary Colors - Orange */
+  --primary: #FF6B35;           /* orange-600 */
+  --primary-hover: #E85A2A;     /* orange-700 */
+  --primary-light: #FF8C42;     /* orange-500 light */
+  --primary-dark: #CC5429;      /* orange-800 */
 
   /* Accent Colors */
-  --accent-cyan: #06B6D4;       /* cyan-500 */
-  --accent-cyan-dark: #0891B2;  /* cyan-600 */
-  --accent-cyan-light: #CFFAFE; /* cyan-100 */
+  --accent-cyan: #FF8C42;       /* orange-light */
+  --accent-cyan-dark: #E85A2A;  /* orange-dark */
+  --accent-cyan-light: #FFB99B; /* orange-100 */
 
   /* Success/Status Colors */
   --success-light: #D1FAE5;     /* green-100 */
@@ -50,14 +50,14 @@
   --warning: #F59E0B;           /* amber-500 */
   --info: #3B82F6;              /* blue-500 */
 
-  /* Shadows - Teal glow */
+  /* Shadows - Orange glow */
   --shadow-sm: 0 2px 4px rgba(0, 0, 0, 0.2);
   --shadow-md: 0 8px 16px rgba(0, 0, 0, 0.3);
   --shadow-lg: 0 16px 32px rgba(0, 0, 0, 0.4);
-  --shadow-glow: 0 0 20px rgba(20, 184, 166, 0.3);
+  --shadow-glow: 0 0 20px rgba(255, 107, 53, 0.3);
 
-  /* Gradients - Teal to Cyan */
-  --gradient-primary: linear-gradient(135deg, #14B8A6 0%, #06B6D4 100%);
+  /* Gradients - Orange */
+  --gradient-primary: linear-gradient(135deg, #FF6B35 0%, #FF8C42 100%);
   --gradient-bg: linear-gradient(to bottom right, #0f172a, #1a1a2e);
 
   /* Typography */
@@ -99,6 +99,20 @@
   --transition-fast: 0.15s ease;
   --transition-base: 0.3s ease;
   --transition-slow: 0.5s ease;
+
+  /* CSS Module Variable Aliases (Industry Standard Names) */
+  --primary-base: #FF6B35;
+  --secondary-warning: #F59E0B;
+  --secondary-success: #10B981;
+  --background-main: #0F172A;
+  --background-card: #1E293B;
+  --background-overlay: rgba(15, 23, 42, 0.8);
+  --background-hover: #334155;
+  --text-muted: #94A3B8;
+  --border-default: rgba(255, 255, 255, 0.1);
+  --border-hover: #FF6B35;
+  --gradient-background: linear-gradient(to bottom right, #0f172a, #1a1a2e);
+  --gradient-primary-reverse: linear-gradient(135deg, #FF8C42 0%, #FF6B35 100%);
 }
 
 /* ============================================
@@ -425,17 +439,17 @@ body {
   font-size: var(--text-sm);
   cursor: pointer;
   transition: var(--transition-base);
-  box-shadow: 0 4px 12px rgba(20, 184, 166, 0.3);
+  box-shadow: 0 4px 12px rgba(255, 107, 53, 0.3);
 }
 
 .btn-primary:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(20, 184, 166, 0.4);
+  box-shadow: 0 8px 24px rgba(255, 107, 53, 0.4);
 }
 
 .btn-primary:active {
   transform: translateY(0);
-  box-shadow: 0 2px 8px rgba(20, 184, 166, 0.2);
+  box-shadow: 0 2px 8px rgba(255, 107, 53, 0.2);
 }
 
 .btn-primary:disabled {
