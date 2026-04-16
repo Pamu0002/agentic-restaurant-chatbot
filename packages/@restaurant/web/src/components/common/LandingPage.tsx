@@ -13,7 +13,7 @@
  */
 
 import { useEffect, useState } from 'react';
-import FloatingChatWidget from './FloatingChatWidget';
+import FloatingChatWidget from '../chat/FloatingChatWidget';
 import './LandingPage.css';
 
 interface LandingPageProps {
@@ -129,102 +129,53 @@ export default function LandingPage({ onSignIn, onSignUp, onDiscoverRestaurants 
 
   return (
     <div className="landing-page">
-      {/* FIXED HEADER */}
-      <header className="landing-header">
-        <div className="header-content">
-          <div className="header-logo">
-            <span className="logo-icon">🍽️</span>
-            <span className="logo-text">AgentDine</span>
-          </div>
-          <div className="header-cta">
-            <button className="header-btn-secondary" onClick={onSignIn}>
-              Sign In
-            </button>
-            <button className="header-btn-primary" onClick={onSignUp}>
-              Get Started
-            </button>
-          </div>
-        </div>
-      </header>
-
       {/* HERO SECTION */}
       <section className="hero-section">
         <div className="hero-container">
           {/* LEFT HERO CONTENT */}
           <div className="hero-left">
             <h1 className="hero-title">
-              Discover Your Perfect <span className="highlight-text">Restaurant</span>
+              Discover Sri Lanka's<br /><span className="highlight-text">Best Restaurants</span>
             </h1>
             <p className="hero-subtitle">
-              Experience the future of dining. Our AI-powered Chef Assistant provides personalized recommendations, 
-              instant table availability, and seamless bookings—all tailored to your unique taste.
+              Experience the future of dining with our AI-powered curation. From hidden boutiques in Galle to upscale Colombo landmarks, find your perfect table in seconds.
             </p>
             <div className="hero-features">
               <div className="feature-item">
-                <span className="feature-icon">🤖</span>
-                <div>
-                  <div className="feature-label">Smart AI Recommendations</div>
-                  <div className="feature-desc">Personalized to your preferences</div>
-                </div>
+                <span className="feature-icon">✨</span>
+                <span className="feature-label">AI Chef Recommendations</span>
               </div>
               <div className="feature-item">
                 <span className="feature-icon">⚡</span>
-                <div>
-                  <div className="feature-label">Instant Reservations</div>
-                  <div className="feature-desc">Book in seconds with live availability</div>
-                </div>
+                <span className="feature-label">One-Click Instant Booking</span>
               </div>
               <div className="feature-item">
                 <span className="feature-icon">❤️</span>
-                <div>
-                  <div className="feature-label">Curated Experiences</div>
-                  <div className="feature-desc">Handpicked restaurants just for you</div>
-                </div>
+                <span className="feature-label">Personalized Favorites</span>
               </div>
             </div>
             <div className="hero-cta-group">
-              <button className="hero-cta-primary" onClick={() => setChatbotIsOpen(true)}>
-                👉 Chat with Chef Assistant
+              <button className="hero-cta-primary" onClick={() => onDiscoverRestaurants?.()}>
+                ➜ Explore Restaurants
               </button>
-              <button className="hero-cta-secondary" onClick={onSignUp}>
-                Create Free Account
+              <span className="cta-divider">✕</span>
+              <button className="hero-cta-secondary" onClick={() => setChatbotIsOpen(true)}>
+                Chat with Chef
               </button>
             </div>
           </div>
 
-          {/* RIGHT HERO FOOD IMAGE CAROUSEL */}
+          {/* RIGHT HERO BACKGROUND IMAGE */}
           <div className="hero-right">
-            <div className="food-carousel-container">
-              {/* Main Feature Image */}
-              <div className="food-image food-image-main">
-                <img
-                  src={heroFoodImages[0].src}
-                  alt={heroFoodImages[0].alt}
-                  className="food-img"
-                />
-                <div className="food-label">{heroFoodImages[0].label}</div>
-              </div>
-
-              {/* Top Side Image */}
-              <div className="food-image food-image-top">
-                <img
-                  src={heroFoodImages[1].src}
-                  alt={heroFoodImages[1].alt}
-                  className="food-img"
-                />
-                <div className="food-label">{heroFoodImages[1].label}</div>
-              </div>
-
-              {/* Bottom Side Image */}
-              <div className="food-image food-image-bottom">
-                <img
-                  src={heroFoodImages[2].src}
-                  alt={heroFoodImages[2].alt}
-                  className="food-img"
-                />
-                <div className="food-label">{heroFoodImages[2].label}</div>
-              </div>
-            </div>
+            <div 
+              className="hero-background-image"
+              style={{
+                backgroundImage: 'url(/Right%20Side_%20Imagery.png)',
+                backgroundPosition: 'center',
+                backgroundSize: 'cover',
+                backgroundRepeat: 'no-repeat',
+              }}
+            />
           </div>
         </div>
       </section>

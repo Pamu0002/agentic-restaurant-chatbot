@@ -1,14 +1,21 @@
-import { AuthProvider } from '@restaurant/shared'
+import { AuthProvider, UserProfileProvider } from '@restaurant/shared'
 import { BrowserRouter, Navigate, Route, Routes, useNavigate } from 'react-router-dom'
 import GoogleCallback from './components/auth/GoogleCallback'
 import SignIn from './components/auth/SignIn'
 import SignUp from './components/auth/SignUp'
-import LandingPage from './components/LandingPage'
-import RestaurantDiscovery from './components/RestaurantDiscovery'
-import RestaurantDetails from './components/RestaurantDetails'
-import BookingStep1 from './components/BookingStep1'
-import BookingStep2 from './components/BookingStep2'
-import BookingStep3 from './components/BookingStep3'
+import BookingStep1 from './components/booking/BookingStep1'
+import BookingStep2 from './components/booking/BookingStep2'
+import BookingStep3 from './components/booking/BookingStep3'
+import Header from './components/layout/Header'
+import LandingPage from './components/common/LandingPage'
+import BookingsHistory from './components/profile/BookingsHistory'
+import PreferencesSettings from './components/profile/PreferencesSettings'
+import ProtectedRoute from './components/layout/ProtectedRoute'
+import RestaurantDetails from './components/restaurant/RestaurantDetails'
+import RestaurantDiscovery from './components/restaurant/RestaurantDiscovery'
+import UserProfile from './components/common/UserProfile'
+import HomePage from './pages/HomePage'
+import SearchPage from './pages/SearchPage'
 import './index.css'
 
 function AppRoutes() {
@@ -16,7 +23,7 @@ function AppRoutes() {
 
   return (
     <Routes>
-      {/* Landing Page - Industry-standard entry point with hero, trust, featured, how-it-works, and floating chatbot */}
+      {/* Landing Page - Public */}
       <Route 
         path="/" 
         element={
@@ -27,68 +34,138 @@ function AppRoutes() {
           />
         } 
       />
-      
-      {/* Sign In */}
-      <Route path="/signin" element={<SignIn />} />
-      
-      {/* Sign Up */}
-      <Route path="/signup" element={<SignUp />} />
 
-      {/* Google OAuth Callback */}
+      {/* Home Page - Authenticated */}
+      <Route 
+        path="/home" 
+        element={
+          <ProtectedRoute>
+            <HomePage />
+          </ProtectedRoute>
+        } 
+      />
+      
+      {/* Auth Pages - No header */}
+      <Route path="/signin" element={<SignIn />} />
+      <Route path="/signup" element={<SignUp />} />
       <Route path="/auth/google-callback" element={<GoogleCallback />} />
       
-      {/* Restaurant Discovery - Search and filter restaurants */}
+      {/* Protected: Restaurant Search & Discovery */}
       <Route 
         path="/restaurants" 
         element={
-          <RestaurantDiscovery 
-            onRestaurantSelect={(id) => navigate(`/restaurants/${id}`)}
-            onBack={() => navigate('/')}
-          />
+          <ProtectedRoute>
+            <SearchPage />
+          </ProtectedRoute>
         }
       />
 
-      {/* Restaurant Details - View specific restaurant with tabs and booking widget */}
+      {/* Protected: Restaurant Details */}
       <Route 
         path="/restaurants/:id" 
         element={
-          <RestaurantDetails 
-            onBackClick={() => navigate('/restaurants')}
-            onBookingStart={(id) => navigate(`/booking/step1`, { state: { restaurantId: id } })}
-          />
+          <ProtectedRoute>
+            <RestaurantDetails 
+              onBackClick={() => navigate('/restaurants')}
+              onBookingStart={(id) => navigate(`/booking/step1`, { state: { restaurantId: id } })}
+            />
+          </ProtectedRoute>
         }
       />
 
-      {/* Booking Flow - 3-step reservation process */}
+      {/* Protected: Booking Flow */}
       <Route 
         path="/booking/step1" 
         element={
-          <BookingStep1 
-            onNext={(date, time) => navigate('/booking/step2', { state: { date, time } })}
-            onBack={() => navigate('/restaurants')}
-          />
+          <ProtectedRoute>
+            <BookingStep1 
+              onNext={(date, time) => navigate('/booking/step2', { state: { date, time } })}
+              onBack={() => navigate('/restaurants')}
+            />
+          </ProtectedRoute>
         }
       />
       <Route 
         path="/booking/step2" 
         element={
-          <BookingStep2 
-            onNext={(guestCount, notes) => navigate('/booking/step3', { state: { guestCount, notes } })}
-            onBack={() => navigate('/booking/step1')}
-          />
+          <ProtectedRoute>
+            <BookingStep2 
+              onNext={(guestCount, notes) => navigate('/booking/step3', { state: { guestCount, notes } })}
+              onBack={() => navigate('/booking/step1')}
+            />
+          </ProtectedRoute>
         }
       />
       <Route 
         path="/booking/step3" 
         element={
-          <BookingStep3 
-            onConfirm={() => navigate('/bookings')}
-            onBack={() => navigate('/booking/step2')}
-          />
+          <ProtectedRoute>
+            <BookingStep3 
+              onConfirm={() => navigate('/bookings')}
+              onBack={() => navigate('/booking/step2')}
+            />
+          </ProtectedRoute>
         }
       />
       
-      {/* Fallback - Redirect unknown routes to landing page */}
+      {/* Protected: User Profile */}
+      <Route
+        path="/profile"
+        element={
+          <ProtectedRoute>
+            <UserProfile onBack={() => navigate('/')} />
+          </ProtectedRoute>
+        }
+      />
+
+      {/* Placeholder: How it Works (Protected) */}
+      <Route
+        path="/how-it-works"
+        element={
+          <ProtectedRoute>
+            <div style={{ padding: '40px', textAlign: 'center' }}>
+              <h1>How it Works</h1>
+              <p>Coming soon...</p>
+            </div>
+          </ProtectedRoute>
+        }
+      />
+
+      {/* Connected: Bookings History (Protected) */}
+      <Route
+        path="/bookings"
+        element={
+          <ProtectedRoute>
+            <div className="bookings-page" style={{ minHeight: '100vh', background: 'linear-gradient(180deg, #0f1419 0%, #1a1f2e 50%, #16213e 100%)', paddingTop: '110px' }}>
+              <div style={{ maxWidth: '1440px', margin: '0 auto', padding: '40px 20px' }}>
+                <div style={{ marginBottom: '40px', paddingBottom: '24px', borderBottom: '2px solid rgba(255, 140, 66, 0.1)' }}>
+                  <h1 style={{ fontSize: '28px', fontWeight: '800', color: '#ffffff', margin: 0, background: 'linear-gradient(135deg, #ffffff 0%, #ff6b35 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>My Bookings</h1>
+                </div>
+                <BookingsHistory />
+              </div>
+            </div>
+          </ProtectedRoute>
+        }
+      />
+
+      {/* Connected: Preferences Settings (Protected) */}
+      <Route
+        path="/settings"
+        element={
+          <ProtectedRoute>
+            <div className="settings-page" style={{ minHeight: '100vh', background: 'linear-gradient(180deg, #0f1419 0%, #1a1f2e 50%, #16213e 100%)', paddingTop: '110px' }}>
+              <div style={{ maxWidth: '1440px', margin: '0 auto', padding: '40px 20px' }}>
+                <div style={{ marginBottom: '40px', paddingBottom: '24px', borderBottom: '2px solid rgba(255, 140, 66, 0.1)' }}>
+                  <h1 style={{ fontSize: '28px', fontWeight: '800', color: '#ffffff', margin: 0, background: 'linear-gradient(135deg, #ffffff 0%, #ff6b35 100%)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text' }}>Preferences & Settings</h1>
+                </div>
+                <PreferencesSettings />
+              </div>
+            </div>
+          </ProtectedRoute>
+        }
+      />
+      
+      {/* Fallback */}
       <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   )
@@ -97,11 +174,14 @@ function AppRoutes() {
 export function App() {
   return (
     <AuthProvider>
-      <BrowserRouter>
-        <div className="w-full min-h-screen bg-gradient-to-br from-slate-900 to-purple-900 text-white font-sans selection:bg-teal-500/30">
-          <AppRoutes />
-        </div>
-      </BrowserRouter>
+      <UserProfileProvider>
+        <BrowserRouter>
+          <div className="w-full min-h-screen bg-gradient-to-br from-slate-900 to-purple-900 text-white font-sans selection:bg-teal-500/30">
+            <Header />
+            <AppRoutes />
+          </div>
+        </BrowserRouter>
+      </UserProfileProvider>
     </AuthProvider>
   )
 }

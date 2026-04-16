@@ -11,6 +11,8 @@
     "outDir": "./dist",
     "rootDir": "./src",
     "strict": true,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
     "esModuleInterop": true,
     "skipDefaultLibCheck": true,
     "resolveJsonModule": true,

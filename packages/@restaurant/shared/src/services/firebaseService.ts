@@ -69,7 +69,7 @@ export const signInWithGoogle = async (googleIdToken: string): Promise<User> => 
     console.log('💾 Storing session token in localStorage...');
     if (typeof localStorage !== 'undefined') {
       localStorage.setItem('sessionToken', sessionTokenFromResponse);
-      console.log('✅ Session token stored');
+      console.log(`✅ Session token stored (length: ${sessionTokenFromResponse.length})`);
     }
     sessionToken = sessionTokenFromResponse;
 
@@ -320,12 +320,16 @@ export const signInWithEmail = async (
         photoURL: response.data.data.user.photoURL,
       };
 
-      // Store token
-      if (response.data.data.accessToken) {
-        localStorage.setItem('sessionToken', response.data.data.accessToken);
-      }
+    // Store token
+    if (response.data.data.accessToken) {
+      console.log(`💾 Storing accessToken as sessionToken (length: ${response.data.data.accessToken.length})`);
+      localStorage.setItem('sessionToken', response.data.data.accessToken);
+      console.log(`✅ Token stored successfully`);
+    } else {
+      console.warn(`⚠️  No accessToken in response.data.data`);
+    }
 
-      return userData;
+    return userData;
     }
 
     throw new Error(response.data.message || 'Email sign-in failed');
@@ -375,7 +379,11 @@ export const signUpWithEmail = async (
 
       // Store token
       if (response.data.data.accessToken) {
+        console.log(`💾 Storing accessToken as sessionToken (length: ${response.data.data.accessToken.length})`);
         localStorage.setItem('sessionToken', response.data.data.accessToken);
+        console.log(`✅ Token stored successfully`);
+      } else {
+        console.warn(`⚠️  No accessToken in response.data.data`);
       }
 
       return userData;

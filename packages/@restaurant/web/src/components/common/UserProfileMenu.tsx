@@ -11,7 +11,7 @@
 import { useAuth } from '@restaurant/shared';
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getGuestUser, isGuestUser } from '../services/guestService';
+import { getGuestUser, isGuestUser } from '../../services/guestService';
 import './UserProfileMenu.css';
 
 interface UserProfile {

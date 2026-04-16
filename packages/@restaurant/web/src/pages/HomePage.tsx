@@ -98,7 +98,7 @@ export default function HomePage() {
       {/* HERO SECTION */}
       <section className="hero">
         <div className="hero-content">
-          <h1>Find Your Perfect Restaurant</h1>
+          <h1>Find Your Sri Lankan Perfect Restaurant</h1>
           <p>Search, discover, and reserve tables at the best restaurants</p>
 
           {/* SEARCH BOX */}
@@ -137,7 +137,7 @@ export default function HomePage() {
           <div className="feature-card">
             <div className="feature-icon">⭐</div>
             <h3>Smart Recommendations</h3>
-            <p>Get personalized suggestions based on your taste</p>
+            <p>Get personalized suggestions based on your taste!</p>
           </div>
 
           <div className="feature-card">

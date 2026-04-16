@@ -4,7 +4,7 @@
  * Top bar with conversation title, online status, menu options, and user profile
  */
 
-import UserProfileMenu from './UserProfileMenu';
+import UserProfileMenu from '../common/UserProfileMenu';
 
 interface ConversationHeaderProps {
   title?: string;

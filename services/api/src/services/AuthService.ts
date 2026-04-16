@@ -141,10 +141,15 @@ export class AuthenticationService {
    */
   public verifyAccessToken(token: string): TokenPayload | null {
     try {
+      logger.debug(`🔐 Verifying access token (length: ${token.length})`);
+      logger.debug(`🔑 JWT_ACCESS_SECRET length: ${JWT_ACCESS_SECRET.length}`);
+      
       const decoded = jwt.verify(token, JWT_ACCESS_SECRET) as TokenPayload;
+      logger.debug(`✅ Token verified successfully: userId=${decoded.userId}`);
       return decoded;
-    } catch (error) {
-      logger.warn('Invalid access token');
+    } catch (error: any) {
+      logger.warn(`❌ Invalid access token: ${error.message}`);
+      logger.debug(`Token sample (first 20 chars): ${token.substring(0, 20)}...`);
       return null;
     }
   }
@@ -735,10 +740,13 @@ export class AuthenticationService {
     });
 
     return {
-      id: user.id,
-      email: user.email,
-      displayName: user.displayName,
-      phone: user.phone,
+      success: true,
+      message: 'Profile updated successfully',
+      data: {
+        id: user.id,
+        email: user.email,
+        displayName: user.displayName || '',
+      },
     };
   }
 

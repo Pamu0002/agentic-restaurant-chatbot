@@ -113,7 +113,7 @@ export default function SignUp(): JSX.Element {
 
     try {
       await signup(formData.name, formData.email, formData.password);
-      navigate('/chat');
+      navigate('/');
     } catch (error) {
       setErrors({ submit: 'Sign up failed. Please try again.' });
     }

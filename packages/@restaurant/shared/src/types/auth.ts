@@ -6,10 +6,18 @@
 
 export interface User {
   uid: string;
+  userId?: string; // alias for uid
   email: string;
   displayName?: string;
   photoURL?: string;
+  phone?: string;
   lastLogin?: string;
+  preferences?: {
+    cuisines?: string[];
+    priceRange?: string;
+    location?: string;
+    notifications?: boolean;
+  };
 }
 
 export interface AuthResponse {

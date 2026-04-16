@@ -12,9 +12,7 @@ import {
   signInWithEmail,
   signInWithGoogle,
   signOutUser,
-  signUpWithEmail,
-  updateUserPreferences,
-  updateUserProfile,
+  signUpWithEmail
 } from '../services/firebaseService';
 import { User } from '../types/auth';
 
@@ -174,14 +172,40 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       if (!user) throw new Error('User not authenticated');
       
-      await updateUserProfile(user.uid, {
-        displayName: updatedUser.displayName,
+      // Get access token from localStorage
+      const accessToken = typeof localStorage !== 'undefined' 
+        ? localStorage.getItem('accessToken')
+        : null;
+      
+      if (!accessToken) {
+        throw new Error('No access token found');
+      }
+      
+      // Call backend API to update profile
+      const response = await fetch('/api/auth/profile', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${accessToken}`,
+        },
+        body: JSON.stringify({
+          displayName: updatedUser.displayName || user.displayName,
+          phone: updatedUser.phone || user.phone,
+        }),
       });
       
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to update profile');
+      }
+      
+      // Update local state
       setUser((prev) => prev ? { ...prev, ...updatedUser } : null);
+      console.log('✅ Profile updated successfully');
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Profile update failed';
       setError(message);
+      console.error('❌ Profile update error:', message);
       throw err;
     }
   };
@@ -191,8 +215,38 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     try {
       if (!user) throw new Error('User not authenticated');
       
-      await updateUserPreferences(user.uid, preferences);
+      // Get access token from localStorage
+      const accessToken = typeof localStorage !== 'undefined' 
+        ? localStorage.getItem('accessToken')
+        : null;
       
+      if (!accessToken) {
+        throw new Error('No access token found');
+      }
+      
+      // Call backend API to update preferences
+      const response = await fetch('/api/auth/profile', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${accessToken}`,
+        },
+        body: JSON.stringify({
+          preferences: {
+            cuisines: preferences.cuisines || [],
+            priceRange: preferences.priceRange || 'moderate',
+            location: preferences.location || '',
+            notifications: preferences.notifications !== false,
+          },
+        }),
+      });
+      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.message || 'Failed to update preferences');
+      }
+      
+      // Update local state
       setUser((prev) => prev ? {
         ...prev,
         preferences: {
@@ -200,9 +254,11 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           ...preferences,
         },
       } : null);
+      console.log('✅ Preferences updated successfully');
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Preferences update failed';
       setError(message);
+      console.error('❌ Preferences update error:', message);
       throw err;
     }
   };

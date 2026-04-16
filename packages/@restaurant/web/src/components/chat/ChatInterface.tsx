@@ -14,20 +14,20 @@
 
 import { useAuth } from '@restaurant/shared';
 import { useEffect, useRef, useState } from 'react';
-import { useConversation } from '../hooks/useConversation';
+import { useConversation } from '../../hooks/useConversation';
 import {
     discoverRestaurants,
     extractRestaurantQuery,
     sendChatMessage,
     shouldCallAgent,
-} from '../services/chatService';
-import { getGuestUser, getSessionToken, isGuestUser } from '../services/guestService';
+} from '../../services/chatService';
+import { getGuestUser, getSessionToken, isGuestUser } from '../../services/guestService';
 import ChatInput from './ChatInput';
 import ConversationHeader from './ConversationHeader';
 import EmptyChatState from './EmptyChatState';
 import MessageBubble from './MessageBubble';
 import QuickReplyChips from './QuickReplyChips';
-import RestaurantCard from './RestaurantCard';
+import RestaurantCard from '../common/RestaurantCard';
 
 interface Message {
   id: string;

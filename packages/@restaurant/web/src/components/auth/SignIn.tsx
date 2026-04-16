@@ -10,7 +10,7 @@
 
 import { initializeGoogleAuth, useAuth } from '@restaurant/shared';
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 
 interface SignInProps {}
 
@@ -20,6 +20,7 @@ export default function SignIn(): JSX.Element {
   // ============================================
   
   const navigate = useNavigate()
+  const [searchParams] = useSearchParams()
   const { login, isLoading } = useAuth()
   const [formData, setFormData] = useState({
     email: '',
@@ -81,7 +82,9 @@ export default function SignIn(): JSX.Element {
       if (formData.rememberMe) {
         localStorage.setItem('rememberEmail', formData.email);
       }
-      navigate('/chat');
+      // Redirect to return URL or home
+      const returnTo = searchParams.get('returnTo') || '/';
+      navigate(returnTo);
     } catch (error) {
       setErrors({ submit: 'Invalid email or password' });
     }

@@ -42,8 +42,11 @@ function verifyGuestToken(token: string): any {
 export const verifyAccessToken = (req: Request, res: Response, next: NextFunction) => {
   try {
     const authHeader = req.headers.authorization;
+    
+    logger.debug(`🔐 Auth Header Check: ${authHeader ? 'Present' : 'Missing'}`);
 
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      logger.warn(`⚠️  Missing or invalid Bearer token in header`);
       return res.status(401).json({
         success: false,
         error: 'UNAUTHORIZED',
@@ -52,16 +55,20 @@ export const verifyAccessToken = (req: Request, res: Response, next: NextFunctio
     }
 
     const token = authHeader.substring(7); // Remove "Bearer " prefix
+    logger.debug(`📝 Token received (length: ${token.length})`);
 
     // Try to verify as auth user token
+    logger.debug(`🔍 Attempting to verify as auth user token...`);
     let payload = AuthService.verifyAccessToken(token);
 
     // If auth token fails, try as guest token
     if (!payload) {
+      logger.debug(`❌ Auth token failed, trying guest token...`);
       payload = verifyGuestToken(token);
     }
 
     if (!payload) {
+      logger.warn(`⚠️  Token verification failed - both auth and guest tokens invalid`);
       return res.status(401).json({
         success: false,
         error: 'INVALID_TOKEN',
@@ -74,7 +81,7 @@ export const verifyAccessToken = (req: Request, res: Response, next: NextFunctio
     (req as any).userId = payload.userId; // Set userId for access in route handlers
     (req as any).isGuest = (payload as any).isGuest || false; // Flag for guest users
     
-    logger.debug(`User authenticated: ${payload.userId} (${(payload as any).isGuest ? 'guest' : 'authenticated'})`);
+    logger.info(`✅ User authenticated: ${payload.userId} (${(payload as any).isGuest ? 'guest' : 'authenticated'})`);
     next();
   } catch (error) {
     logger.error('Auth middleware error:', error);

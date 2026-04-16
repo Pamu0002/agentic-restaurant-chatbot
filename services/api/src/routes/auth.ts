@@ -242,6 +242,29 @@ router.post('/logout-all', verifyAccessToken, async (req: Request, res: Response
 });
 
 /**
+ * GET /api/auth/me
+ * Get current user profile (alias for /profile)
+ */
+router.get('/me', verifyAccessToken, async (req: Request, res: Response) => {
+  try {
+    const user = (req as any).user;
+    const profile = await AuthService.getUserProfile(user.userId);
+
+    res.json({
+      success: true,
+      data: profile,
+    });
+  } catch (error: any) {
+    logger.error('Get profile error:', error);
+    res.status(500).json({
+      success: false,
+      error: 'GET_PROFILE_FAILED',
+      message: error.message || 'Failed to get profile',
+    });
+  }
+});
+
+/**
  * GET /api/auth/profile
  * Get current user profile
  */

@@ -5,7 +5,6 @@
  * Extracts the ID token and sends to backend for verification
  */
 
-import { useAuth } from '@restaurant/shared';
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 
@@ -133,9 +132,9 @@ export default function GoogleCallback({ onSuccess, onError }: GoogleCallbackPro
         if (onSuccess) {
           onSuccess();
         } else {
-          // If no callback, navigate to chat
-          console.log('📍 Navigating to /chat');
-          navigate('/chat');
+          // If no callback, navigate to landing page
+          console.log('📍 Navigating to landing page');
+          navigate('/');
         }
         
       } catch (error) {
