@@ -11,10 +11,12 @@ import { Router } from 'express';
 import {
     changePassword,
     deleteAccount,
+    forgotPassword,
     getCurrentUser,
     googleSignIn,
     logout,
     refreshToken,
+    resetPassword,
     signin,
     signup,
     updateProfile,
@@ -302,6 +304,48 @@ router.post('/logout', authenticateToken, (req, res) => {
 router.delete('/account', authenticateToken, async (req, res) => {
   logger.info('DELETE /api/auth/account');
   await deleteAccount(req, res);
+});
+
+/**
+ * POST /api/auth/forgot-password
+ * Request password reset email
+ *
+ * Body:
+ * {
+ *   email: string
+ * }
+ *
+ * Response:
+ * {
+ *   success: boolean,
+ *   message: string
+ * }
+ */
+router.post('/forgot-password', async (req, res) => {
+  logger.info('POST /api/auth/forgot-password');
+  await forgotPassword(req, res);
+});
+
+/**
+ * POST /api/auth/reset-password
+ * Reset password with verification code
+ *
+ * Body:
+ * {
+ *   email: string,
+ *   verificationCode: string,
+ *   newPassword: string
+ * }
+ *
+ * Response:
+ * {
+ *   success: boolean,
+ *   message: string
+ * }
+ */
+router.post('/reset-password', async (req, res) => {
+  logger.info('POST /api/auth/reset-password');
+  await resetPassword(req, res);
 });
 
 export default router;

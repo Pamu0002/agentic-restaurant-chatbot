@@ -852,3 +852,121 @@ export const refreshSessionToken = async (
     return null;
   }
 };
+
+/**
+ * POST /api/auth/forgot-password
+ * Request password reset email
+ *
+ * Body:
+ * - email: string (required)
+ *
+ * Response:
+ * {
+ *   success: boolean,
+ *   message: "Check your email for password reset instructions"
+ * }
+ */
+export const forgotPassword = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { email } = req.body;
+
+    if (!email) {
+      res.status(400).json({
+        success: false,
+        error: AuthErrorType.INVALID_EMAIL,
+        message: 'Email is required',
+      });
+      return;
+    }
+
+    logger.info(`Password reset requested for: ${email.toLowerCase()}`);
+
+    // Request password reset from service
+    await authService.requestPasswordReset(email.toLowerCase());
+
+    logger.info(`Password reset email sent to: ${email.toLowerCase()}`);
+
+    // Don't reveal if email exists (security best practice)
+    res.json({
+      success: true,
+      message: 'If an account exists with that email, you will receive a password reset link.',
+    });
+  } catch (error) {
+    if (error instanceof AuthError) {
+      logger.warn(`Password reset request failed: ${error.type}`);
+      res.status(error.statusCode).json({
+        success: false,
+        error: error.type,
+        message: error.message,
+      });
+      return;
+    }
+
+    logger.error('Password reset request error', error);
+    res.status(500).json({
+      success: false,
+      error: AuthErrorType.UNKNOWN,
+      message: 'Failed to send reset email. Please try again.',
+    });
+  }
+};
+
+/**
+ * POST /api/auth/reset-password
+ * Reset password with verification code
+ *
+ * Body:
+ * - email: string (required)
+ * - verificationCode: string (required, 6-digit code from email)
+ * - newPassword: string (required, must be strong)
+ *
+ * Response:
+ * {
+ *   success: boolean,
+ *   message: "Password reset successful"
+ * }
+ */
+export const resetPassword = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { email, verificationCode, newPassword } = req.body;
+
+    // Validate required fields
+    if (!email || !verificationCode || !newPassword) {
+      res.status(400).json({
+        success: false,
+        error: AuthErrorType.INVALID_CREDENTIALS,
+        message: 'Email, verification code, and new password are required',
+      });
+      return;
+    }
+
+    logger.info(`Password reset attempt for: ${email.toLowerCase()}`);
+
+    // Reset password through service
+    await authService.resetPassword(email.toLowerCase(), verificationCode, newPassword);
+
+    logger.info(`Password reset successful for: ${email.toLowerCase()}`);
+
+    res.json({
+      success: true,
+      message: 'Password reset successful. Please sign in with your new password.',
+    });
+  } catch (error) {
+    if (error instanceof AuthError) {
+      logger.warn(`Password reset failed: ${error.type}`);
+      res.status(error.statusCode).json({
+        success: false,
+        error: error.type,
+        message: error.message,
+      });
+      return;
+    }
+
+    logger.error('Password reset error', error);
+    res.status(500).json({
+      success: false,
+      error: AuthErrorType.UNKNOWN,
+      message: 'Failed to reset password. Please try again.',
+    });
+  }
+};

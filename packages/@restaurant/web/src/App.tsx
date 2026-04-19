@@ -1,5 +1,6 @@
 import { AuthProvider, UserProfileProvider } from '@restaurant/shared'
 import { BrowserRouter, Navigate, Route, Routes, useNavigate } from 'react-router-dom'
+import ForgotPassword from './components/auth/ForgotPassword'
 import GoogleCallback from './components/auth/GoogleCallback'
 import SignIn from './components/auth/SignIn'
 import SignUp from './components/auth/SignUp'
@@ -10,14 +11,14 @@ import FloatingChatWidget from './components/chat/FloatingChatWidget'
 import UserProfile from './components/common/UserProfile'
 import Header from './components/layout/Header_new'
 import ProtectedRoute from './components/layout/ProtectedRoute'
+import HomePage from './components/pages/HomePage'
+import LandingPage from './components/pages/LandingPage'
+import SearchPage from './components/pages/SearchPage'
 import BookingsHistory from './components/profile/BookingsHistory'
 import PreferencesSettings from './components/profile/PreferencesSettings'
 import RestaurantDetails from './components/restaurant/RestaurantDetails'
-import { ChatProvider } from './context/ChatContext'
+import { ChatProvider } from './contexts/ChatContext'
 import './index.css'
-import HomePage from './pages/HomePage'
-import LandingPage from './pages/LandingPage'
-import SearchPage from './pages/SearchPage'
 
 function AppRoutes() {
   const navigate = useNavigate()
@@ -43,6 +44,7 @@ function AppRoutes() {
       {/* Auth Pages - No header */}
       <Route path="/signin" element={<SignIn />} />
       <Route path="/signup" element={<SignUp />} />
+      <Route path="/forgot-password" element={<ForgotPassword />} />
       <Route path="/auth/google-callback" element={<GoogleCallback />} />
       
       {/* Public: Restaurant Search & Discovery */}

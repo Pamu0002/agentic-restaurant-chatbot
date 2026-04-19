@@ -194,7 +194,11 @@ export default function SignIn(): JSX.Element {
               />
               <label htmlFor="rememberMe">Remember me</label>
             </div>
-            <button type="button" className="link-button">
+            <button 
+              type="button" 
+              className="link-button"
+              onClick={() => navigate('/forgot-password')}
+            >
               Forgot Password?
             </button>
           </div>

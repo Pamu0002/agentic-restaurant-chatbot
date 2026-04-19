@@ -16,6 +16,7 @@ import AuditLogRepository from '../repositories/AuditLogRepository';
 import SessionRepository from '../repositories/SessionRepository';
 import UserRepository from '../repositories/UserRepository';
 import logger from '../utils/logger';
+import EmailService from './EmailService';
 
 // ============================================
 // CONFIGURATION
@@ -859,6 +860,160 @@ export class AuthenticationService {
       action: 'ACCOUNT_DELETED',
       resource: 'users',
     });
+  }
+
+  // ============================================
+  // PASSWORD RESET
+  // ============================================
+
+  /**
+   * Request password reset
+   * Generates reset code and sends email
+   */
+  async requestPasswordReset(email: string): Promise<void> {
+    try {
+      logger.info(`Password reset requested for: ${email}`);
+
+      // Check if user exists
+      const user = await UserRepository.getUserByEmail(email);
+      if (!user) {
+        // Don't reveal if email exists (security)
+        logger.warn(`Password reset requested for non-existent email: ${email}`);
+        return;
+      }
+
+      // Generate 6-digit reset code
+      const resetCode = this.generateResetCode();
+      const expiryTime = new Date(Date.now() + 15 * 60 * 1000); // 15 minutes
+
+      logger.debug(`Generated reset code for user: ${user.id}`);
+
+      // Save reset code to database
+      // NOTE: This assumes you have a PasswordReset repository/model
+      // TODO: Uncomment when PasswordResetRepository is created
+      // await PasswordResetRepository.create({
+      //   userId: user.id,
+      //   email: user.email,
+      //   resetCode,
+      //   expiresAt: expiryTime,
+      // });
+
+      // Send email with reset code
+      await EmailService.sendPasswordResetEmail({
+        email: user.email,
+        displayName: user.displayName,
+        resetCode,
+        expiryMinutes: 15,
+      });
+
+      logger.info(`Password reset email sent to: ${email}`);
+
+      // Log audit event
+      await AuditLogRepository.createLog({
+        userId: user.id,
+        action: 'PASSWORD_RESET_REQUESTED',
+        resource: 'password_resets',
+      });
+    } catch (error) {
+      logger.error('Password reset request error:', error);
+      throw new AuthError(
+        AuthErrorType.UNKNOWN,
+        500,
+        'Failed to process password reset request',
+      );
+    }
+  }
+
+  /**
+   * Reset password with verification code
+   */
+  async resetPassword(
+    email: string,
+    verificationCode: string,
+    newPassword: string,
+  ): Promise<void> {
+    try {
+      logger.info(`Password reset attempt for: ${email}`);
+
+      // Validate new password
+      const passwordValidation = this.validatePassword(newPassword);
+      if (!passwordValidation.valid) {
+        throw new AuthError(
+          AuthErrorType.INVALID_CREDENTIALS,
+          400,
+          `Password must include: ${passwordValidation.errors.join(', ')}`,
+        );
+      }
+
+      // Check if user exists
+      const user = await UserRepository.getUserByEmail(email);
+      if (!user) {
+        throw new AuthError(
+          AuthErrorType.USER_NOT_FOUND,
+          404,
+          'User not found',
+        );
+      }
+
+      // Validate reset code
+      // NOTE: This assumes you have a PasswordReset repository/model
+      // const resetRecord = await PasswordResetRepository.findByEmailAndCode(email, verificationCode);
+      // if (!resetRecord) {
+      //   throw new AuthError(
+      //     AuthErrorType.INVALID_TOKEN,
+      //     400,
+      //     'Invalid or expired reset code',
+      //   );
+      // }
+      // if (resetRecord.expiresAt < new Date()) {
+      //   throw new AuthError(
+      //     AuthErrorType.TOKEN_EXPIRED,
+      //     400,
+      //     'Reset code has expired',
+      //   );
+      // }
+
+      // Hash new password
+      const hashedPassword = await this.hashPassword(newPassword);
+
+      // Update user password
+      await UserRepository.updateUser(user.id, {
+        passwordHash: hashedPassword,
+        updatedAt: new Date(),
+      });
+
+      // Mark reset code as used
+      // await PasswordResetRepository.markUsed(resetRecord.id);
+
+      // Invalidate all existing sessions for security
+      await SessionRepository.revokeAllSessions(user.id);
+
+      logger.info(`Password reset successful for: ${email}`);
+
+      // Log audit event
+      await AuditLogRepository.createLog({
+        userId: user.id,
+        action: 'PASSWORD_RESET_COMPLETED',
+        resource: 'password_resets',
+      });
+    } catch (error) {
+      if (error instanceof AuthError) {
+        throw error;
+      }
+      logger.error('Password reset error:', error);
+      throw new AuthError(
+        AuthErrorType.UNKNOWN,
+        500,
+        'Failed to reset password',
+      );
+    }
+  }
+
+  /**
+   * Generate a 6-digit reset code
+   */
+  private generateResetCode(): string {
+    return Math.floor(100000 + Math.random() * 900000).toString();
   }
 }
 

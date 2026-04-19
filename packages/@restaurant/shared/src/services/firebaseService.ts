@@ -129,16 +129,27 @@ export const initializeGoogleAuth = (): string => {
   Redirect URI: ${redirectUri}
   `);
   
+  const nonce = generateNonce();
+  
   const params = new URLSearchParams({
     client_id: googleClientId,
     redirect_uri: redirectUri,
     response_type: 'id_token token',
     scope: 'openid email profile',
-    nonce: generateNonce(),
+    nonce: nonce,
+    state: generateNonce(),  // Add state for security
+    display: 'popup',         // Show popup instead of redirect
   });
 
   const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?${params.toString()}`;
-  console.log('Generated Auth URL:', authUrl);
+  console.log('🔗 Full OAuth URL:', authUrl);
+  console.log('✅ Nonce:', nonce);
+  console.log('📋 Auth URL components:', {
+    client_id: googleClientId.substring(0, 30) + '...',
+    redirect_uri: redirectUri,
+    response_type: 'id_token token',
+    scope: 'openid email profile'
+  });
   return authUrl;
 };
 

@@ -1,0 +1,73 @@
+../shared/src/services/userProfileService.ts(91,9): error TS2393: Duplicate function implementation.
+../shared/src/services/userProfileService.ts(251,9): error TS2393: Duplicate function implementation.
+src/components/auth/index.ts(6,40): error TS2307: Cannot find module './UserProfile' or its corresponding type declarations.
+src/components/index.ts(2,47): error TS2307: Cannot find module './FloatingChatWidget' or its corresponding type declarations.
+src/components/index.ts(3,43): error TS2307: Cannot find module './RestaurantCard' or its corresponding type declarations.
+src/components/index.ts(4,44): error TS2307: Cannot find module './UserProfileMenu' or its corresponding type declarations.
+src/components/index.ts(5,40): error TS2307: Cannot find module './UserSidebar' or its corresponding type declarations.
+src/components/layout/Header_new.tsx(170,26): error TS2339: Property 'name' does not exist on type 'AuthUser'.
+src/components/profile/PreferencesSettings.tsx(202,54): error TS2322: Type 'string' is not assignable to type '"budget" | "moderate" | "expensive" | "luxury"'.
+src/components/search/RestaurantGrid.tsx(34,15): error TS2353: Object literal may only specify known properties, and 'animate' does not exist in type 'Properties<string | number, string & {}>'.
+src/components/search/SearchHeader.tsx(91,15): error TS2353: Object literal may only specify known properties, and 'placeholderColor' does not exist in type 'Properties<string | number, string & {}>'.
+src/constants/config.ts(7,29): error TS2580: Cannot find name 'process'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node`.
+src/constants/config.ts(8,31): error TS2580: Cannot find name 'process'. Do you need to install type definitions for node? Try `npm i --save-dev @types/node`.
+src/services/chatService.ts(8,25): error TS2307: Cannot find module '../models/Chat' or its corresponding type declarations.
+src/services/chatService.ts(150,59): error TS2339: Property 'statusStatus' does not exist on type 'Response'.
+src/services/firebaseService.ts(54,17): error TS2339: Property 'data' does not exist on type 'AuthResponse'.
+src/services/firebaseService.ts(108,17): error TS2339: Property 'data' does not exist on type 'AuthResponse'.
+src/tests/AuthContext.test.tsx(9,39): error TS2307: Cannot find module '../../contexts/AuthContext' or its corresponding type declarations.
+src/tests/AuthContext.test.tsx(10,30): error TS2307: Cannot find module '../../services/firebaseService' or its corresponding type declarations.
+src/tests/SignIn.test.tsx(12,23): error TS2307: Cannot find module '@testing-library/user-event' or its corresponding type declarations.
+src/tests/SignIn.test.tsx(14,20): error TS2307: Cannot find module '../../components/auth/SignIn' or its corresponding type declarations.
+src/tests/SignIn.test.tsx(52,44): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/tests/SignIn.test.tsx(57,53): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/tests/SignIn.test.tsx(62,56): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/tests/SignIn.test.tsx(67,44): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/tests/SignIn.test.tsx(72,64): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/tests/SignIn.test.tsx(77,43): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/tests/SignIn.test.tsx(96,56): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/tests/SignIn.test.tsx(111,59): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/tests/SignIn.test.tsx(126,59): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/tests/SignIn.test.tsx(144,54): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/tests/SignIn.test.tsx(206,53): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/tests/SignIn.test.tsx(207,56): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/tests/SignUp.test.tsx(12,23): error TS2307: Cannot find module '@testing-library/user-event' or its corresponding type declarations.
+src/tests/SignUp.test.tsx(14,20): error TS2307: Cannot find module '../../components/auth/SignUp' or its corresponding type declarations.
+src/tests/SignUp.test.tsx(47,59): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/tests/SignUp.test.tsx(52,62): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/tests/SignUp.test.tsx(57,53): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/tests/SignUp.test.tsx(74,44): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/tests/SignUp.test.tsx(79,79): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/tests/SignUp.test.tsx(84,43): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/tests/SignUp.test.tsx(97,55): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/tests/SignUp.test.tsx(112,56): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/tests/SignUp.test.tsx(130,59): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/tests/SignUp.test.tsx(150,77): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/tests/SignUp.test.tsx(171,61): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/tests/SignUp.test.tsx(192,58): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/tests/SignUp.test.tsx(215,72): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/tests/SignUp.test.tsx(253,60): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/tests/SignUp.test.tsx(271,62): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/tests/SignUp.test.tsx(272,53): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/tests/SignUp.test.tsx(273,56): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/tests/UserProfile.test.tsx(11,23): error TS2307: Cannot find module '@testing-library/user-event' or its corresponding type declarations.
+src/tests/UserProfile.test.tsx(13,25): error TS2307: Cannot find module '../../components/auth/UserProfile' or its corresponding type declarations.
+src/tests/UserProfile.test.tsx(47,44): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/tests/UserProfile.test.tsx(52,45): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/tests/UserProfile.test.tsx(57,52): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/tests/UserProfile.test.tsx(62,61): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/tests/UserProfile.test.tsx(67,64): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/tests/UserProfile.test.tsx(74,53): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/tests/UserProfile.test.tsx(75,45): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/tests/UserProfile.test.tsx(80,45): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/tests/UserProfile.test.tsx(85,45): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/tests/UserProfile.test.tsx(86,52): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/tests/UserProfile.test.tsx(98,68): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/tests/UserProfile.test.tsx(108,68): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/tests/UserProfile.test.tsx(109,63): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/tests/UserProfile.test.tsx(184,68): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/tests/UserProfile.test.tsx(198,61): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/tests/UserProfile.test.tsx(246,9): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/tests/UserProfile.test.tsx(251,45): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/tests/UserProfile.test.tsx(252,52): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/utils/helpers.ts(37,16): error TS2503: Cannot find namespace 'NodeJS'.

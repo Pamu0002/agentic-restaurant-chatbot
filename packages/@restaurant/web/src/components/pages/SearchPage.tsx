@@ -12,13 +12,13 @@
 import { ChevronUp } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { useSearchParams } from 'react-router-dom';
-import Header from '../components/layout/Header_new';
-import FilterPanel from '../components/search/FilterPanel';
-import Pagination from '../components/search/Pagination';
-import RestaurantGrid from '../components/search/RestaurantGrid';
-import SearchHeader from '../components/search/SearchHeader';
-import { filterRestaurants, getAllRestaurants } from '../services/restaurantService';
-import colors from '../theme/colors';
+import { filterRestaurants, getAllRestaurants } from '../../services/restaurantService';
+import colors from '../../theme/colors';
+import Header from '../layout/Header_new';
+import FilterPanel from '../search/FilterPanel';
+import Pagination from '../search/Pagination';
+import RestaurantGrid from '../search/RestaurantGrid';
+import SearchHeader from '../search/SearchHeader';
 
 export default function SearchPage() {
   const [searchParams, setSearchParams] = useSearchParams();

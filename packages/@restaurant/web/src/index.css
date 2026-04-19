@@ -7,6 +7,9 @@
 /* Import Font from Google */
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
+/* Import Auth Styles */
+@import url('./styles/auth.css');
+
 /* ============================================
    1. COLOR SYSTEM (Magic Patterns Teal/Cyan)
    ============================================ */
@@ -99,20 +102,6 @@
   --transition-fast: 0.15s ease;
   --transition-base: 0.3s ease;
   --transition-slow: 0.5s ease;
-
-  /* CSS Module Variable Aliases (Industry Standard Names) */
-  --primary-base: #FF6B35;
-  --secondary-warning: #F59E0B;
-  --secondary-success: #10B981;
-  --background-main: #0F172A;
-  --background-card: #1E293B;
-  --background-overlay: rgba(15, 23, 42, 0.8);
-  --background-hover: #334155;
-  --text-muted: #94A3B8;
-  --border-default: rgba(255, 255, 255, 0.1);
-  --border-hover: #FF6B35;
-  --gradient-background: linear-gradient(to bottom right, #0f172a, #1a1a2e);
-  --gradient-primary-reverse: linear-gradient(135deg, #FF8C42 0%, #FF6B35 100%);
 }
 
 /* ============================================
