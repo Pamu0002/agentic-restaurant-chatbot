@@ -136,10 +136,10 @@ REPOSITORY: Monorepo with npm workspaces
 
 | Database | Technology | Type | Purpose | Region |
 |----------|-----------|------|---------|--------|
-| **Primary (Real-time)** | Firebase Firestore | NoSQL Document | User data, reservations, real-time sync | us-central1 |
+| **Primary (Real-time)** | Firebase Firestore | NoSQL Document | User data, reservations, audit logs, real-time sync | us-central1 |
 | **Graph DB** | Neo4j Aura | Graph Database | User preferences, recommendations | Cloud-hosted |
-| **Structured Data** | MongoDB Atlas | NoSQL Document | Audit logs, analytics history | us-central1 |
 | **Vector Store** | Vertex AI Vector Search | Vector Database | Embeddings, semantic search | us-central1 |
+| **Analytics** | BigQuery | Data Warehouse | Analytics, business intelligence, historical data | us-central1 |
 | **Cache** | Redis (optional) | In-memory | Session cache, rate limiting | us-central1 |
 | **Backup** | Cloud Storage | Object Storage | Database backups | us-central1 |
 
@@ -272,8 +272,8 @@ agentic-restaurant-chatbot/
 | **Backend** | AI Service | Python 3.11 + FastAPI | ✅ CONFIRMED |
 | **Database** | Real-time | Firebase Firestore | ✅ CONFIRMED |
 | **Database** | Graph | Neo4j Aura | ✅ CONFIRMED |
-| **Database** | Structured | MongoDB Atlas | ✅ CONFIRMED |
 | **Database** | Vector | Vertex AI Vector Search | ✅ CONFIRMED |
+| **Database** | Analytics | BigQuery | ✅ CONFIRMED |
 | **AI/ML** | LLM | Google Vertex AI (Gemini Pro) | ✅ CONFIRMED |
 | **AI/ML** | LLM Fallback | OpenAI GPT-4 | ✅ CONFIRMED |
 | **AI/ML** | Orchestration | LangChain + CrewAI | ✅ CONFIRMED |

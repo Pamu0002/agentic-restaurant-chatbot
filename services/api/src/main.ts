@@ -10,9 +10,42 @@
 
 /// <reference path="./types.d.ts" />
 
+// CRITICAL: Load environment variables FIRST, before any other imports
+import dotenv from 'dotenv';
+import fs from 'fs';
+import path from 'path';
+
+// Load environment variables from .env.local file
+// Use absolute path to ensure it works from any working directory
+dotenv.config({ path: path.resolve(__dirname, '../.env.local') });
+
+// Resolve GOOGLE_APPLICATION_CREDENTIALS to absolute path if it's a relative path
+const credentialsPath = process.env.GOOGLE_APPLICATION_CREDENTIALS;
+if (credentialsPath && !path.isAbsolute(credentialsPath)) {
+  // __dirname = services/api/src
+  // Need to go up 3 levels to reach project root
+  // services/api/src/../../.. = project root
+  const projectRoot = path.resolve(__dirname, '../../..');
+  let absoluteCredentialsPath = path.resolve(projectRoot, credentialsPath);
+  
+  console.log(`🔍 Attempting to resolve credentials:`);
+  console.log(`   __dirname: ${__dirname}`);
+  console.log(`   projectRoot: ${projectRoot}`);
+  console.log(`   credentialsPath: ${credentialsPath}`);
+  console.log(`   absoluteCredentialsPath: ${absoluteCredentialsPath}`);
+  
+  process.env.GOOGLE_APPLICATION_CREDENTIALS = absoluteCredentialsPath;
+}
+
+// Debug: Check if GCP credentials file exists
+if (process.env.GOOGLE_APPLICATION_CREDENTIALS) {
+  const exists = fs.existsSync(process.env.GOOGLE_APPLICATION_CREDENTIALS);
+  console.log(`📄 GCP Credentials File Exists: ${exists}`);
+}
+
+// NOW import everything else
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
-import dotenv from 'dotenv';
 import type { Express, NextFunction, Request, Response } from 'express';
 import express from 'express';
 import helmet from 'helmet';
@@ -20,13 +53,11 @@ import morgan from 'morgan';
 
 // Import routes & database
 import { initializeDatabase, runMigrations } from './config/database';
+import aiRoutes from './routes/aiRoutes';
 import authRoutes from './routes/authRoutes';
 import chatRoutes from './routes/chatRoutes';
 import guestRoutes from './routes/guestRoutes';
 import logger from './utils/logger';
-
-// Load environment variables from .env.local file
-dotenv.config({ path: '.env.local' });
 
 // ============================================
 // 1. INITIALIZE EXPRESS APP
@@ -100,6 +131,9 @@ app.use('/api/guests', guestRoutes);
 // Chat routes (handles /api/chat/send, /api/chat/conversations, etc.)
 app.use('/api/chat', chatRoutes);
 
+// AI routes (handles /api/ai/chat, /api/ai/analyze-intent, /api/ai/recommendations, etc.)
+app.use('/api/ai', aiRoutes);
+
 // ============================================
 // 4. BASIC ROUTES (EXAMPLES)
 // ============================================
@@ -137,7 +171,8 @@ app.get('/', (req: Request, res: Response) => {
       reservations: '/api/v1/reservations',
       users: '/api/v1/users',
       auth: '/api/auth/*',
-      chat: '/api/chat/*'
+      chat: '/api/chat/*',
+      ai: '/api/ai/*'
     }
   });
 });

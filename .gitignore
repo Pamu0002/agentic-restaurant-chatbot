@@ -1,6 +1,8 @@
 node_modules
 .env
+.env.local
 credentials.json
+config/gcp/
 dist/
 .DS_Store
 *.log

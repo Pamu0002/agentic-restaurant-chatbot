@@ -14,6 +14,7 @@ import { AlertCircle, MessageCircle, Send, X } from 'lucide-react';
 import { useEffect, useRef, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useChat } from '../../contexts/ChatContext';
+import { aiChatService } from '../../services/AIChatService';
 import colors from '../../theme/colors';
 
 interface Message {
@@ -297,15 +298,20 @@ export default function FloatingChatWidget({
   }, [initialIsOpen, onOpenChange]);
 
   const handleSendMessage = async () => {
-    if (!inputValue.trim()) return;
+    console.log('📤 [DEBUG] handleSendMessage called with input:', inputValue);
+    if (!inputValue.trim()) {
+      console.log('❌ [DEBUG] Input is empty, returning');
+      return;
+    }
 
     // Authenticated users have unlimited access - no limits!
     if (!isGuest) {
+      console.log('✅ [DEBUG] User is authenticated - no limits');
       // User is authenticated - send without any restrictions
     } else {
       // Only guests have limitations
       if (guestMessageCount >= 3) {
-        console.log('⛔ Guest reached 3 message limit');
+        console.log('⛔ [DEBUG] Guest reached 3 message limit');
         return;
       }
     }
@@ -318,7 +324,13 @@ export default function FloatingChatWidget({
       timestamp: new Date()
     };
 
-    setMessages((prev) => [...prev, userMessage]);
+    console.log('📝 [DEBUG] Adding user message:', userMessage);
+    setMessages((prev) => {
+      console.log('📊 [DEBUG] Previous messages count:', prev.length);
+      const updated = [...prev, userMessage];
+      console.log('📊 [DEBUG] Updated messages count:', updated.length);
+      return updated;
+    });
     const userInput = inputValue;
     setInputValue('');
     
@@ -335,15 +347,27 @@ export default function FloatingChatWidget({
 
     setIsTyping(true);
 
-    // Simulate bot response delay
-    setTimeout(() => {
+    // Get AI response from Vertex AI
+    try {
+      console.log('🔄 [DEBUG] Calling aiChatService.sendMessage with:', userInput);
+      const aiResponse = await aiChatService.sendMessage(userInput);
+      
+      console.log('✅ [DEBUG] Got AI response:', aiResponse);
+      
       const botMessage: Message = {
         id: (Date.now() + 1).toString(),
         type: 'bot',
-        text: generateBotResponse(userInput),
+        text: aiResponse.message,
         timestamp: new Date()
       };
-      setMessages((prev) => [...prev, botMessage]);
+      
+      console.log('🤖 [DEBUG] Adding bot message:', botMessage);
+      setMessages((prev) => {
+        console.log('📊 [DEBUG] Previous messages before bot response:', prev.length);
+        const updated = [...prev, botMessage];
+        console.log('📊 [DEBUG] Updated messages after bot response:', updated.length);
+        return updated;
+      });
 
       // Add limit reached message ONLY for guests after 3rd interaction
       if (isGuest && guestMessageCount >= 2) { // 2 because we already incremented
@@ -361,10 +385,33 @@ export default function FloatingChatWidget({
       }
 
       setIsTyping(false);
-    }, 1000);
+    } catch (error) {
+      console.error('❌ [DEBUG] AI Service Error:', error);
+      
+      // Fallback to basic response if AI service fails
+      const fallbackResponse = generateBotResponseFallback(userInput);
+      console.log('📋 [DEBUG] Using fallback response:', fallbackResponse);
+      
+      const fallbackMessage: Message = {
+        id: (Date.now() + 1).toString(),
+        type: 'bot',
+        text: fallbackResponse,
+        timestamp: new Date()
+      };
+      
+      console.log('🔧 [DEBUG] Adding fallback message:', fallbackMessage);
+      setMessages((prev) => {
+        console.log('📊 [DEBUG] Previous messages before fallback:', prev.length);
+        const updated = [...prev, fallbackMessage];
+        console.log('📊 [DEBUG] Updated messages after fallback:', updated.length);
+        return updated;
+      });
+      setIsTyping(false);
+    }
   };
 
-  const generateBotResponse = (userInput: string): string => {
+  const generateBotResponseFallback = (userInput: string): string => {
+    // Fallback response when Vertex AI is unavailable
     const input = userInput.toLowerCase();
 
     if (
