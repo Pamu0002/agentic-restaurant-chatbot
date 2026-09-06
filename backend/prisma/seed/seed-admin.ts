@@ -4,7 +4,7 @@ import { prisma } from "../../lib/db.js";
 
 const ADMIN_EMAIL = "admin@agent.com";
 const ADMIN_PASSWORD = "071656Ad@";
-const ADMIN_NAME = "System Administrator";
+const ADMIN_NAME = "Administrator";
 
 async function main() {
   console.log("🔐 Seeding Firebase admin user...\n");
