@@ -19,7 +19,7 @@ _FILTER_PROMPT = (
     "cuisine, area, price_range, query_text.\n"
     "Rules:\n"
     "- cuisine: normalize to standard English (e.g. 'japaneses' → 'japanese', 'chineese' → 'chinese'). Empty string if not mentioned.\n"
-    "- area: a geographic location/neighborhood (e.g. 'Colombo', 'Kaduwela'). "
+    "- area: a geographic location/neighborhood (e.g. 'Colombo', 'Kaduwela', 'Rathmalana'). "
     "Do NOT put a restaurant name here — if the user mentions a specific restaurant name, leave area empty and put the name in query_text.\n"
     "- price_range: one of BUDGET, MODERATE, EXPENSIVE, FINE_DINING. Empty string if not mentioned.\n"
     "- query_text: the full original query, always populated.\n"
