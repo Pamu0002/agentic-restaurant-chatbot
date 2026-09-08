@@ -1,0 +1,83 @@
+
+> @restaurant/api@1.0.0 build
+> tsc
+
+src/controllers/authController.ts(382,7): error TS2353: Object literal may only specify known properties, and 'photoURL' does not exist in type 'UpdateUserRequest'.
+src/controllers/authController.ts(528,36): error TS2339: Property 'verifyEmail' does not exist on type 'AuthenticationService'.
+src/controllers/authController.ts(591,23): error TS2339: Property 'deleteUser' does not exist on type 'AuthenticationService'.
+src/controllers/authController.ts(644,40): error TS2551: Property 'signInWithGoogle' does not exist on type 'AuthenticationService'. Did you mean 'loginWithGoogle'?
+src/controllers/authController.ts(645,31): error TS2339: Property 'sub' does not exist on type 'AuthResponse'.
+src/controllers/authController.ts(646,28): error TS2339: Property 'email' does not exist on type 'AuthResponse'.
+src/controllers/authController.ts(647,34): error TS2339: Property 'name' does not exist on type 'AuthResponse'.
+src/controllers/authController.ts(648,31): error TS2339: Property 'picture' does not exist on type 'AuthResponse'.
+src/controllers/authController.ts(651,60): error TS2339: Property 'email' does not exist on type 'AuthResponse'.
+src/controllers/authController.ts(674,52): error TS2304: Cannot find name 'TokenPayload'.
+src/controllers/middleware/authMiddleware.ts(7,25): error TS2307: Cannot find module '../services/AuthService' or its corresponding type declarations.
+src/controllers/middleware/authMiddleware.ts(8,20): error TS2307: Cannot find module '../utils/logger' or its corresponding type declarations.
+src/main.ts(11,26): error TS7016: Could not find a declaration file for module 'cookie-parser'. 'c:/Users/Pamudi/Desktop/new/FPY/agentic-restaurant-chatbot/services/api/node_modules/cookie-parser/index.js' implicitly has an 'any' type.
+  Try `npm i --save-dev @types/cookie-parser` if it exists or add a new declaration (.d.ts) file containing `declare module 'cookie-parser';`
+src/main.ts(17,20): error TS7016: Could not find a declaration file for module 'morgan'. 'c:/Users/Pamudi/Desktop/new/FPY/agentic-restaurant-chatbot/services/api/node_modules/morgan/index.js' implicitly has an 'any' type.
+  Try `npm i --save-dev @types/morgan` if it exists or add a new declaration (.d.ts) file containing `declare module 'morgan';`
+src/repositories/AuditLogRepository.ts(7,30): error TS7016: Could not find a declaration file for module 'uuid'. 'c:/Users/Pamudi/Desktop/new/FPY/agentic-restaurant-chatbot/services/api/node_modules/uuid/dist/index.js' implicitly has an 'any' type.
+  Try `npm i --save-dev @types/uuid` if it exists or add a new declaration (.d.ts) file containing `declare module 'uuid';`
+src/repositories/SessionRepository.ts(7,30): error TS7016: Could not find a declaration file for module 'uuid'. 'c:/Users/Pamudi/Desktop/new/FPY/agentic-restaurant-chatbot/services/api/node_modules/uuid/dist/index.js' implicitly has an 'any' type.
+  Try `npm i --save-dev @types/uuid` if it exists or add a new declaration (.d.ts) file containing `declare module 'uuid';`
+src/repositories/SessionRepository.ts(166,7): error TS18048: 'data' is possibly 'undefined'.
+src/repositories/SessionRepository.ts(167,8): error TS18048: 'data' is possibly 'undefined'.
+src/repositories/UserRepository.ts(7,30): error TS7016: Could not find a declaration file for module 'uuid'. 'c:/Users/Pamudi/Desktop/new/FPY/agentic-restaurant-chatbot/services/api/node_modules/uuid/dist/index.js' implicitly has an 'any' type.
+  Try `npm i --save-dev @types/uuid` if it exists or add a new declaration (.d.ts) file containing `declare module 'uuid';`
+src/routes/auth.ts(7,35): error TS2307: Cannot find module '../middleware/authMiddleware' or its corresponding type declarations.
+src/routes/auth.ts(8,51): error TS2307: Cannot find module '../middleware/rateLimiter' or its corresponding type declarations.
+src/routes/auth.ts(374,22): error TS2552: Cannot find name 'verifySessionToken'. Did you mean 'sessionToken'?
+src/routes/auth.ts(396,16): error TS2528: A module cannot have multiple default exports.
+src/routes/auth.ts(416,22): error TS2304: Cannot find name 'refreshSessionToken'.
+src/routes/auth.ts(450,20): error TS2552: Cannot find name 'verifySessionToken'. Did you mean 'verifyAccessToken'?
+src/routes/auth.ts(458,16): error TS2528: A module cannot have multiple default exports.
+src/routes/authRoutes.test.ts(13,26): error TS7016: Could not find a declaration file for module 'cookie-parser'. 'c:/Users/Pamudi/Desktop/new/FPY/agentic-restaurant-chatbot/services/api/node_modules/cookie-parser/index.js' implicitly has an 'any' type.
+  Try `npm i --save-dev @types/cookie-parser` if it exists or add a new declaration (.d.ts) file containing `declare module 'cookie-parser';`
+src/routes/authRoutes.test.ts(184,56): error TS2339: Property 'some' does not exist on type 'string'.
+src/routes/authRoutes.test.ts(286,56): error TS2339: Property 'some' does not exist on type 'string'.
+src/routes/authRoutes.test.ts(493,56): error TS2339: Property 'some' does not exist on type 'string'.
+src/routes/authRoutes.ts(27,8): error TS2307: Cannot find module '../middleware/authMiddleware' or its corresponding type declarations.
+src/services/authService.test.ts(124,42): error TS2551: Property 'signUp' does not exist on type 'AuthenticationService'. Did you mean 'signup'?
+src/services/authService.test.ts(141,32): error TS2551: Property 'signUp' does not exist on type 'AuthenticationService'. Did you mean 'signup'?
+src/services/authService.test.ts(153,32): error TS2551: Property 'signUp' does not exist on type 'AuthenticationService'. Did you mean 'signup'?
+src/services/authService.test.ts(165,42): error TS2551: Property 'signUp' does not exist on type 'AuthenticationService'. Did you mean 'signup'?
+src/services/authService.test.ts(177,42): error TS2551: Property 'signUp' does not exist on type 'AuthenticationService'. Did you mean 'signup'?
+src/services/authService.test.ts(189,42): error TS2551: Property 'signUp' does not exist on type 'AuthenticationService'. Did you mean 'signup'?
+src/services/authService.test.ts(201,42): error TS2551: Property 'signUp' does not exist on type 'AuthenticationService'. Did you mean 'signup'?
+src/services/authService.test.ts(216,25): error TS2551: Property 'signUp' does not exist on type 'AuthenticationService'. Did you mean 'signup'?
+src/services/authService.test.ts(229,42): error TS2339: Property 'signIn' does not exist on type 'AuthenticationService'.
+src/services/authService.test.ts(244,42): error TS2339: Property 'signIn' does not exist on type 'AuthenticationService'.
+src/services/authService.test.ts(262,32): error TS2339: Property 'signIn' does not exist on type 'AuthenticationService'.
+src/services/authService.test.ts(271,32): error TS2339: Property 'signIn' does not exist on type 'AuthenticationService'.
+src/services/authService.test.ts(280,42): error TS2339: Property 'signIn' does not exist on type 'AuthenticationService'.
+src/services/authService.test.ts(295,42): error TS2551: Property 'signInWithGoogle' does not exist on type 'AuthenticationService'. Did you mean 'loginWithGoogle'?
+src/services/authService.test.ts(306,25): error TS2551: Property 'signUp' does not exist on type 'AuthenticationService'. Did you mean 'signup'?
+src/services/authService.test.ts(319,42): error TS2551: Property 'signInWithGoogle' does not exist on type 'AuthenticationService'. Did you mean 'loginWithGoogle'?
+src/services/authService.test.ts(333,42): error TS2551: Property 'signInWithGoogle' does not exist on type 'AuthenticationService'. Did you mean 'loginWithGoogle'?
+src/services/authService.test.ts(350,42): error TS2551: Property 'signUp' does not exist on type 'AuthenticationService'. Did you mean 'signup'?
+src/services/authService.test.ts(359,23): error TS2339: Property 'email' does not exist on type '{ userId: string; }'.
+src/services/authService.test.ts(360,23): error TS2339: Property 'role' does not exist on type '{ userId: string; }'.
+src/services/authService.test.ts(374,31): error TS2339: Property 'toBePlainObject' does not exist on type 'Matchers<void, string | undefined> & SnapshotMatchers<void, string | undefined> & Inverse<JestMatchers<void, string | undefined>> & PromiseMatchers<...>'.
+src/services/authService.test.ts(375,23): error TS2339: Property 'email' does not exist on type '{ userId: string; }'.
+src/services/authService.test.ts(376,23): error TS2339: Property 'role' does not exist on type '{ userId: string; }'.
+src/services/authService.test.ts(377,23): error TS2339: Property 'iat' does not exist on type '{ userId: string; }'.
+src/services/authService.test.ts(378,23): error TS2339: Property 'exp' does not exist on type '{ userId: string; }'.
+src/services/authService.test.ts(392,42): error TS2551: Property 'signUp' does not exist on type 'AuthenticationService'. Did you mean 'signup'?
+src/services/authService.test.ts(397,38): error TS2339: Property 'getUserById' does not exist on type 'AuthenticationService'.
+src/services/authService.test.ts(410,45): error TS2551: Property 'updateProfile' does not exist on type 'AuthenticationService'. Did you mean 'updateUserProfile'?
+src/services/authService.test.ts(418,46): error TS2339: Property 'getUserById' does not exist on type 'AuthenticationService'.
+src/services/authService.test.ts(423,45): error TS2551: Property 'updateProfile' does not exist on type 'AuthenticationService'. Did you mean 'updateUserProfile'?
+src/services/authService.test.ts(438,42): error TS2551: Property 'signUp' does not exist on type 'AuthenticationService'. Did you mean 'signup'?
+src/services/authService.test.ts(481,27): error TS2551: Property 'signUp' does not exist on type 'AuthenticationService'. Did you mean 'signup'?
+src/services/authService.test.ts(496,27): error TS2551: Property 'signUp' does not exist on type 'AuthenticationService'. Did you mean 'signup'?
+src/services/AuthService.ts(10,20): error TS7016: Could not find a declaration file for module 'bcryptjs'. 'c:/Users/Pamudi/Desktop/new/FPY/agentic-restaurant-chatbot/services/api/node_modules/bcryptjs/index.js' implicitly has an 'any' type.
+  Try `npm i --save-dev @types/bcryptjs` if it exists or add a new declaration (.d.ts) file containing `declare module 'bcryptjs';`
+src/services/AuthService.ts(284,11): error TS2304: Cannot find name 'GoogleOAuthRequest'.
+src/services/AuthService.ts(292,19): error TS2304: Cannot find name 'AuthError'.
+src/services/AuthService.ts(294,11): error TS2304: Cannot find name 'AuthErrorType'.
+src/services/AuthService.ts(318,11): error TS2353: Object literal may only specify known properties, and 'photoURL' does not exist in type '{ email: string; passwordHash?: string | undefined; displayName: string; authProvider: string; googleId?: string | undefined; phone?: string | undefined; role?: string | undefined; }'.
+src/services/AuthService.ts(346,28): error TS2304: Cannot find name 'AuthError'.
+src/services/AuthService.ts(348,17): error TS2304: Cannot find name 'AuthError'.
+src/services/AuthService.ts(350,9): error TS2304: Cannot find name 'AuthErrorType'.

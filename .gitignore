@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 node_modules/
 .env
 __pycache__/
@@ -6,3 +7,13 @@ __pycache__/
 dist/
 build/
 .next/
+=======
+node_modules
+.env
+.env.local
+credentials.json
+config/gcp/
+dist/
+.DS_Store
+*.log
+>>>>>>> cbd1b959edb296c11fe30dcd67181435c2c98266

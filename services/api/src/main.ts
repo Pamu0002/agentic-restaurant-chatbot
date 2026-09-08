@@ -1,0 +1,483 @@
+/**
+ * ENTRY POINT FOR EXPRESS API SERVICE
+ * 
+ * This file initializes the Express server and sets up:
+ * - Middleware (for processing requests)
+ * - Routes (API endpoints)
+ * - Error handling
+ * - Database connections
+ */
+
+/// <reference path="./types.d.ts" />
+
+// CRITICAL: Load environment variables FIRST, before any other imports
+import dotenv from 'dotenv';
+import fs from 'fs';
+import path from 'path';
+
+// Load environment variables from .env.local file
+// Use absolute path to ensure it works from any working directory
+dotenv.config({ path: path.resolve(__dirname, '../.env.local') });
+
+// Resolve GOOGLE_APPLICATION_CREDENTIALS to absolute path if it's a relative path
+const credentialsPath = process.env.GOOGLE_APPLICATION_CREDENTIALS;
+if (credentialsPath && !path.isAbsolute(credentialsPath)) {
+  // __dirname = services/api/src
+  // Need to go up 3 levels to reach project root
+  // services/api/src/../../.. = project root
+  const projectRoot = path.resolve(__dirname, '../../..');
+  let absoluteCredentialsPath = path.resolve(projectRoot, credentialsPath);
+  
+  console.log(`🔍 Attempting to resolve credentials:`);
+  console.log(`   __dirname: ${__dirname}`);
+  console.log(`   projectRoot: ${projectRoot}`);
+  console.log(`   credentialsPath: ${credentialsPath}`);
+  console.log(`   absoluteCredentialsPath: ${absoluteCredentialsPath}`);
+  
+  process.env.GOOGLE_APPLICATION_CREDENTIALS = absoluteCredentialsPath;
+}
+
+// Debug: Check if GCP credentials file exists
+if (process.env.GOOGLE_APPLICATION_CREDENTIALS) {
+  const exists = fs.existsSync(process.env.GOOGLE_APPLICATION_CREDENTIALS);
+  console.log(`📄 GCP Credentials File Exists: ${exists}`);
+}
+
+// NOW import everything else
+import cookieParser from 'cookie-parser';
+import cors from 'cors';
+import type { Express, NextFunction, Request, Response } from 'express';
+import express from 'express';
+import helmet from 'helmet';
+import morgan from 'morgan';
+
+// Import routes & database
+import { initializeDatabase, runMigrations } from './config/database';
+import aiRoutes from './routes/aiRoutes';
+import authRoutes from './routes/authRoutes';
+import chatRoutes from './routes/chatRoutes';
+import guestRoutes from './routes/guestRoutes';
+import logger from './utils/logger';
+
+// ============================================
+// 1. INITIALIZE EXPRESS APP
+// ============================================
+
+const app: Express = express();
+const PORT = process.env.PORT || 5000;
+
+// ============================================
+// 2. MIDDLEWARE SETUP
+// ============================================
+
+// CORS: Allow requests from frontend (MUST be first!)
+const corsOrigins = (process.env.CORS_ORIGINS || 'http://localhost:5173,http://localhost:5174,http://localhost:5175,http://localhost:5176,http://localhost:3000')
+  .split(',')
+  .map(origin => origin.trim()); // Trim whitespace
+
+console.log('✅ Allowed CORS Origins:', corsOrigins);
+
+app.use(cors({
+  origin: corsOrigins,
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH', 'HEAD'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+  maxAge: 86400, // 24 hours
+}));
+
+// Handle preflight requests explicitly
+app.options('*', cors({
+  origin: corsOrigins,
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS', 'PATCH', 'HEAD'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+}));
+
+// HELMET: Add security headers (but don't block CORS)
+app.use(helmet({
+  contentSecurityPolicy: false, // Disable CSP for CORS
+  crossOriginResourcePolicy: { policy: 'cross-origin' }, // Allow cross-origin
+}));
+
+// COOKIE PARSER: Parse cookies from requests
+app.use(cookieParser());
+
+// BODY PARSER: Parse JSON request bodies
+app.use(express.json({ limit: '1mb' }));
+app.use(express.urlencoded({ limit: '1mb', extended: true }));
+
+// MORGAN: Log all HTTP requests
+app.use(morgan('combined'));
+
+// ============================================
+// 3. ROUTES SETUP
+// ============================================
+
+// Health check
+app.get('/health', (req: Request, res: Response) => {
+  res.json({
+    status: 'healthy',
+    timestamp: new Date().toISOString(),
+    uptime: process.uptime(),
+  });
+});
+
+// Auth routes (handles /api/auth/signup, /api/auth/signin, etc.)
+app.use('/api/auth', authRoutes);
+
+// Guest routes (handles /api/guests/create-session, etc.)
+app.use('/api/guests', guestRoutes);
+
+// Chat routes (handles /api/chat/send, /api/chat/conversations, etc.)
+app.use('/api/chat', chatRoutes);
+
+// AI routes (handles /api/ai/chat, /api/ai/analyze-intent, /api/ai/recommendations, etc.)
+app.use('/api/ai', aiRoutes);
+
+// ============================================
+// 4. BASIC ROUTES (EXAMPLES)
+// ============================================
+
+/**
+ * HEALTH CHECK ENDPOINT
+ * 
+ * Purpose: Check if the server is running
+ * Method: GET
+ * URL: /health
+ * Returns: JSON with status
+ */
+app.get('/health', (req: Request, res: Response) => {
+  res.json({
+    status: 'healthy',
+    timestamp: new Date().toISOString(),
+    uptime: process.uptime()
+  });
+});
+
+/**
+ * WELCOME ENDPOINT
+ * 
+ * Purpose: Welcome message
+ * Method: GET
+ * URL: /
+ */
+app.get('/', (req: Request, res: Response) => {
+  res.json({
+    message: '🍽️ Welcome to Agentic Restaurant Chatbot API',
+    version: '1.0.0',
+    endpoints: {
+      health: '/health',
+      restaurants: '/api/v1/restaurants',
+      reservations: '/api/v1/reservations',
+      users: '/api/v1/users',
+      auth: '/api/auth/*',
+      chat: '/api/chat/*',
+      ai: '/api/ai/*'
+    }
+  });
+});
+
+/**
+ * GET RESTAURANTS ENDPOINT (EXAMPLE)
+ * 
+ * Purpose: Retrieve restaurants from database
+ * Method: GET
+ * URL: /api/v1/restaurants?location=Paris&cuisine=Italian
+ * Returns: List of restaurants matching criteria
+ * 
+ * EXPLAIN: 
+ * - This is a READ operation (GET)
+ * - Use query parameters (?location=...) for filters
+ * - Try it: http://localhost:5000/api/v1/restaurants
+ */
+app.get('/api/v1/restaurants', async (req: Request, res: Response) => {
+  try {
+    // Extract query parameters from URL
+    const { location, cuisine, limit = 10 } = req.query;
+
+    // TODO: Connect to Firestore database
+    // const snapshot = await firestore
+    //   .collection('restaurants')
+    //   .where('location', '==', location)
+    //   .limit(Number(limit))
+    //   .get();
+
+    // For now, return mock data
+    const mockRestaurants = [
+      {
+        id: '1',
+        name: 'Pizza Palace',
+        location: 'Paris',
+        cuisine: 'Italian',
+        rating: 4.5,
+        availableTables: 5
+      },
+      {
+        id: '2',
+        name: 'Le Petit Bistro',
+        location: 'Paris',
+        cuisine: 'French',
+        rating: 4.8,
+        availableTables: 3
+      }
+    ];
+
+    // Send successful response
+    res.json({
+      success: true,
+      statusCode: 200,
+      data: mockRestaurants,
+      count: mockRestaurants.length
+    });
+
+  } catch (error) {
+    // Handle errors
+    console.error('Error fetching restaurants:', error);
+    res.status(500).json({
+      success: false,
+      statusCode: 500,
+      error: 'Failed to fetch restaurants'
+    });
+  }
+});
+
+/**
+ * CREATE RESERVATION ENDPOINT (EXAMPLE)
+ * 
+ * Purpose: Create a new restaurant reservation
+ * Method: POST
+ * URL: /api/v1/reservations
+ * Body: { userId, restaurantId, date, partySize }
+ * Returns: Created reservation with ID
+ * 
+ * EXPLAIN:
+ * - This is a CREATE operation (POST)
+ * - Send data in request body (not URL)
+ * - Always validate input data
+ * - Return 201 status for creation
+ * 
+ * Example request with curl:
+ * curl -X POST http://localhost:5000/api/v1/reservations \
+ *   -H "Content-Type: application/json" \
+ *   -d '{"userId":"user1","restaurantId":"rest1","date":"2024-03-10","partySize":4}'
+ */
+app.post('/api/v1/reservations', async (req: Request, res: Response) => {
+  try {
+    // Extract data from request body
+    const { userId, restaurantId, date, partySize } = req.body;
+
+    // VALIDATION: Check if all required fields are present
+    if (!userId || !restaurantId || !date || !partySize) {
+      return res.status(400).json({
+        success: false,
+        statusCode: 400,
+        error: 'Missing required fields: userId, restaurantId, date, partySize'
+      });
+    }
+
+    // VALIDATION: Check if data types are correct
+    if (typeof partySize !== 'number' || partySize < 1) {
+      return res.status(400).json({
+        success: false,
+        statusCode: 400,
+        error: 'partySize must be a positive number'
+      });
+    }
+
+    // TODO: Save to Firestore
+    // const reservation = await firestore
+    //   .collection('reservations')
+    //   .add({
+    //     userId,
+    //     restaurantId,
+    //     date,
+    //     partySize,
+    //     createdAt: new Date(),
+    //     status: 'pending'
+    //   });
+
+    // For now, return mock response
+    const newReservation = {
+      id: 'res_' + Date.now(),
+      userId,
+      restaurantId,
+      date,
+      partySize,
+      status: 'pending',
+      createdAt: new Date().toISOString()
+    };
+
+    // Return 201 (Created) status with the new reservation
+    res.status(201).json({
+      success: true,
+      statusCode: 201,
+      data: newReservation,
+      message: 'Reservation created successfully'
+    });
+
+  } catch (error) {
+    console.error('Error creating reservation:', error);
+    res.status(500).json({
+      success: false,
+      statusCode: 500,
+      error: 'Failed to create reservation'
+    });
+  }
+});
+
+/**
+ * UPDATE RESERVATION ENDPOINT (EXAMPLE)
+ * 
+ * Purpose: Update an existing reservation
+ * Method: PUT
+ * URL: /api/v1/reservations/RES_ID
+ * Returns: Updated reservation
+ * 
+ * EXPLAIN:
+ * - Use path parameter (/RES_ID) for resource ID
+ * - Send updated data in body
+ * - Return 200 status for update
+ */
+app.put('/api/v1/reservations/:id', async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params; // Get ID from URL
+    const updates = req.body;   // Get updates from body
+
+    // TODO: Update in Firestore
+    // await firestore
+    //   .collection('reservations')
+    //   .doc(id)
+    //   .update(updates);
+
+    // Mock response
+    res.json({
+      success: true,
+      statusCode: 200,
+      data: {
+        id,
+        ...updates,
+        updatedAt: new Date().toISOString()
+      },
+      message: 'Reservation updated successfully'
+    });
+
+  } catch (error) {
+    console.error('Error updating reservation:', error);
+    res.status(500).json({
+      success: false,
+      statusCode: 500,
+      error: 'Failed to update reservation'
+    });
+  }
+});
+
+/**
+ * DELETE RESERVATION ENDPOINT (EXAMPLE)
+ * 
+ * Purpose: Cancel a reservation
+ * Method: DELETE
+ * URL: /api/v1/reservations/RES_ID
+ * Returns: Confirmation message
+ * 
+ * EXPLAIN:
+ * - DELETE removes data from database
+ * - Return 200 or 204 (No Content)
+ */
+app.delete('/api/v1/reservations/:id', async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params;
+
+    // TODO: Delete from Firestore
+    // await firestore
+    //   .collection('reservations')
+    //   .doc(id)
+    //   .delete();
+
+    res.json({
+      success: true,
+      statusCode: 200,
+      message: `Reservation ${id} cancelled successfully`
+    });
+
+  } catch (error) {
+    console.error('Error deleting reservation:', error);
+    res.status(500).json({
+      success: false,
+      statusCode: 500,
+      error: 'Failed to delete reservation'
+    });
+  }
+});
+
+// ============================================
+// 5. 404 HANDLER
+// ============================================
+
+/**
+ * This middleware runs if no other route matches
+ * It handles 404 (Not Found) errors
+ */
+app.use((req: Request, res: Response) => {
+  res.status(404).json({
+    success: false,
+    statusCode: 404,
+    error: `Route not found: ${req.method} ${req.path}`
+  });
+});
+
+// ============================================
+// 6. ERROR HANDLER
+// ============================================
+
+/**
+ * Global error handling middleware
+ * Catches all errors from routes and other middleware
+ */
+app.use((error: Error, req: Request, res: Response, next: NextFunction) => {
+  logger.error('Request error', error);
+  res.status(500).json({
+    success: false,
+    statusCode: 500,
+    error: error.message || 'Internal server error',
+  });
+});
+
+// ============================================
+// 7. START SERVER
+// ============================================
+
+async function startServer() {
+  try {
+    // Initialize database connection
+    logger.info('Initializing database connection...');
+    try {
+      await initializeDatabase();
+      
+      // Run database migrations
+      logger.info('Running database migrations...');
+      await runMigrations();
+    } catch (dbError) {
+      logger.warn('Database initialization failed:', dbError);
+      logger.info('⚠️  Continuing without database. API will work with mocked data.');
+    }
+
+    // Start Express server
+    app.listen(PORT, () => {
+      logger.info('═══════════════════════════════════════════════════════');
+      logger.info(`🚀 Express API Server Started`);
+      logger.info(`📡 Listening on http://localhost:${PORT}`);
+      logger.info(`🏥 Health check: http://localhost:${PORT}/health`);
+      logger.info(`🔐 Auth endpoints: http://localhost:${PORT}/api/auth/*`);
+      logger.info(`💬 Chat endpoints: http://localhost:${PORT}/api/chat/*`);
+      logger.info('═══════════════════════════════════════════════════════');
+    });
+  } catch (error) {
+    logger.error('Failed to start server:', error);
+    process.exit(1);
+  }
+}
+
+// Start the server
+startServer();
+
+export default app;

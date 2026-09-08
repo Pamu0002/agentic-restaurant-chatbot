@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>AgentDine - Restaurant Chatbot</title>
+    <!-- Google Sign-In Script -->
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <!-- Initialize Google Sign-In -->
+    <script>
+      window.onload = function() {
+        if (window.google && window.google.accounts && window.google.accounts.id) {
+          window.google.accounts.id.initialize({
+            client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID || 'YOUR_GOOGLE_CLIENT_ID',
+            callback: handleCredentialResponse
+          });
+        }
+      };
+      
+      function handleCredentialResponse(response) {
+        // This will be handled by the React component
+        window.dispatchEvent(new CustomEvent('google-sign-in', { detail: { credential: response.credential } }));
+      }
+    </script>
+  </head>
+  <body>
+    <!-- Root div where React renders the entire app -->
+    <div id="root"></div>
+    
+    <!-- This script loads the React app -->
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

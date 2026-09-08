@@ -1,0 +1,115 @@
+
+> @restaurant/web@1.0.0 build
+> tsc && vite build
+
+../shared/src/contexts/UserProfileContext.tsx(7,8): error TS6133: 'React' is declared but its value is never read.
+../shared/src/services/firebaseService.ts(396,3): error TS6133: 'uid' is declared but its value is never read.
+../shared/src/services/firebaseService.ts(397,3): error TS6133: 'updates' is declared but its value is never read.
+../shared/src/services/firebaseService.ts(408,3): error TS6133: 'uid' is declared but its value is never read.
+../shared/src/services/firebaseService.ts(409,3): error TS6133: 'preferences' is declared but its value is never read.
+src/components/auth/GoogleCallback.tsx(8,1): error TS6133: 'useAuth' is declared but its value is never read.
+src/components/auth/SignIn.tsx(15,11): error TS6196: 'SignInProps' is declared but never used.
+src/components/auth/SignUp.tsx(15,11): error TS6196: 'SignUpProps' is declared but never used.
+src/components/auth/UserProfile.tsx(30,18): error TS2339: Property 'phone' does not exist on type 'AuthUser'.
+src/components/auth/UserProfile.tsx(35,41): error TS2339: Property 'notifications' does not exist on type '{ cuisines?: string[] | undefined; priceRange?: string | undefined; location?: string | undefined; }'.
+src/components/auth/UserProfile.tsx(60,21): error TS2339: Property 'phone' does not exist on type 'AuthUser'.
+src/components/auth/UserProfile.tsx(65,44): error TS2339: Property 'notifications' does not exist on type '{ cuisines?: string[] | undefined; priceRange?: string | undefined; location?: string | undefined; }'.
+src/components/auth/UserProfile.tsx(130,33): error TS2339: Property 'phone' does not exist on type 'AuthUser'.
+src/components/auth/UserProfile.tsx(135,11): error TS2353: Object literal may only specify known properties, and 'phone' does not exist in type 'Partial<AuthUser>'.
+src/components/auth/UserProfile.tsx(206,21): error TS2339: Property 'phone' does not exist on type 'AuthUser'.
+src/components/auth/UserProfile.tsx(206,67): error TS2339: Property 'phone' does not exist on type 'AuthUser'.
+src/components/auth/UserProfile.tsx(254,36): error TS2339: Property 'notifications' does not exist on type '{ cuisines?: string[] | undefined; priceRange?: string | undefined; location?: string | undefined; }'.
+src/components/BookingStep1.tsx(25,3): error TS6133: 'restaurantId' is declared but its value is never read.
+src/components/BookingStep1.tsx(33,10): error TS6133: 'isMobile' is declared but its value is never read.
+src/components/BookingStep2.tsx(27,3): error TS6133: 'restaurantId' is declared but its value is never read.
+src/components/BookingStep2.tsx(38,10): error TS6133: 'isMobile' is declared but its value is never read.
+src/components/BookingStep3.tsx(30,3): error TS6133: 'restaurantId' is declared but its value is never read.
+src/components/BookingStep3.tsx(42,10): error TS6133: 'isMobile' is declared but its value is never read.
+src/components/LandingPage.tsx(27,10): error TS6133: 'isMobile' is declared but its value is never read.
+src/components/LandingPage.tsx(28,10): error TS6133: 'scrollY' is declared but its value is never read.
+src/components/profile/BookingsHistory.tsx(6,8): error TS6133: 'React' is declared but its value is never read.
+src/components/profile/PreferencesSettings.tsx(6,8): error TS6133: 'React' is declared but its value is never read.
+src/components/profile/PreferencesSettings.tsx(202,54): error TS2322: Type 'string' is not assignable to type '"budget" | "moderate" | "expensive" | "luxury"'.
+src/components/UserProfileMenu.tsx(371,25): error TS2322: Type '{ cuisines: string[]; dietaryRestrictions?: string[] | undefined; priceRange?: "budget" | "moderate" | "upscale" | undefined; notificationsEnabled?: boolean | undefined; }' is not assignable to type '{ cuisines: string[]; dietaryRestrictions: string[]; priceRange: "budget" | "moderate" | "upscale"; notificationsEnabled: boolean; }'.
+  Types of property 'dietaryRestrictions' are incompatible.
+    Type 'string[] | undefined' is not assignable to type 'string[]'.
+      Type 'undefined' is not assignable to type 'string[]'.
+src/components/UserProfileMenu.tsx(392,25): error TS2322: Type '{ dietaryRestrictions: string[]; cuisines?: string[] | undefined; priceRange?: "budget" | "moderate" | "upscale" | undefined; notificationsEnabled?: boolean | undefined; }' is not assignable to type '{ cuisines: string[]; dietaryRestrictions: string[]; priceRange: "budget" | "moderate" | "upscale"; notificationsEnabled: boolean; }'.
+  Types of property 'cuisines' are incompatible.
+    Type 'string[] | undefined' is not assignable to type 'string[]'.
+      Type 'undefined' is not assignable to type 'string[]'.
+src/components/UserProfileMenu.tsx(413,25): error TS2322: Type '{ priceRange: "budget" | "moderate" | "upscale"; cuisines?: string[] | undefined; dietaryRestrictions?: string[] | undefined; notificationsEnabled?: boolean | undefined; }' is not assignable to type '{ cuisines: string[]; dietaryRestrictions: string[]; priceRange: "budget" | "moderate" | "upscale"; notificationsEnabled: boolean; }'.
+  Types of property 'cuisines' are incompatible.
+    Type 'string[] | undefined' is not assignable to type 'string[]'.
+      Type 'undefined' is not assignable to type 'string[]'.
+src/components/UserProfileMenu.tsx(435,25): error TS2322: Type '{ notificationsEnabled: boolean; cuisines?: string[] | undefined; dietaryRestrictions?: string[] | undefined; priceRange?: "budget" | "moderate" | "upscale" | undefined; }' is not assignable to type '{ cuisines: string[]; dietaryRestrictions: string[]; priceRange: "budget" | "moderate" | "upscale"; notificationsEnabled: boolean; }'.
+  Types of property 'cuisines' are incompatible.
+    Type 'string[] | undefined' is not assignable to type 'string[]'.
+      Type 'undefined' is not assignable to type 'string[]'.
+src/pages/RecommendationsPage.tsx(44,28): error TS2339: Property 'userId' does not exist on type 'AuthUser'.
+src/pages/RecommendationsPage.tsx(59,15): error TS2339: Property 'userId' does not exist on type 'AuthUser'.
+src/pages/RecommendationsPage.tsx(102,17): error TS2740: Type 'Recommendation' is missing the following properties from type '{ id: string; name: string; cuisine: string; rating: number; reviews: number; address: string; distance: string; isOpen: boolean; closingTime?: string | undefined; priceLevel: string; availability: string; features: string[]; description: string; emoji: string; }': reviews, isOpen, priceLevel, availability, and 3 more.
+src/pages/ReservationPage.tsx(64,15): error TS2339: Property 'userId' does not exist on type 'AuthUser'.
+src/services/chatService.ts(8,25): error TS2307: Cannot find module '../models/Chat' or its corresponding type declarations.
+src/services/chatService.ts(14,11): error TS6196: 'SendMessageRequest' is declared but never used.
+src/services/chatService.ts(76,3): error TS6133: 'userId' is declared but its value is never read.
+src/services/chatService.ts(112,40): error TS6133: 'userId' is declared but its value is never read.
+src/services/chatService.ts(150,59): error TS2339: Property 'statusStatus' does not exist on type 'Response'.
+src/services/firebaseService.ts(54,17): error TS2339: Property 'data' does not exist on type 'AuthResponse'.
+src/services/firebaseService.ts(108,17): error TS2339: Property 'data' does not exist on type 'AuthResponse'.
+src/services/firebaseService.ts(175,7): error TS6133: 'saveUserProfile' is declared but its value is never read.
+src/tests/AuthContext.test.tsx(9,39): error TS2307: Cannot find module '../../contexts/AuthContext' or its corresponding type declarations.
+src/tests/AuthContext.test.tsx(10,30): error TS2307: Cannot find module '../../services/firebaseService' or its corresponding type declarations.
+src/tests/SignIn.test.tsx(12,23): error TS2307: Cannot find module '@testing-library/user-event' or its corresponding type declarations.
+src/tests/SignIn.test.tsx(14,20): error TS2307: Cannot find module '../../components/auth/SignIn' or its corresponding type declarations.
+src/tests/SignIn.test.tsx(52,44): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/tests/SignIn.test.tsx(57,53): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/tests/SignIn.test.tsx(62,56): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/tests/SignIn.test.tsx(67,44): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/tests/SignIn.test.tsx(72,64): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/tests/SignIn.test.tsx(77,43): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/tests/SignIn.test.tsx(96,56): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/tests/SignIn.test.tsx(111,59): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/tests/SignIn.test.tsx(126,59): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/tests/SignIn.test.tsx(144,54): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement | null>'.
+src/tests/SignIn.test.tsx(206,53): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/tests/SignIn.test.tsx(207,56): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/tests/SignUp.test.tsx(12,23): error TS2307: Cannot find module '@testing-library/user-event' or its corresponding type declarations.
+src/tests/SignUp.test.tsx(14,20): error TS2307: Cannot find module '../../components/auth/SignUp' or its corresponding type declarations.
+src/tests/SignUp.test.tsx(47,59): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/tests/SignUp.test.tsx(52,62): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/tests/SignUp.test.tsx(57,53): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/tests/SignUp.test.tsx(74,44): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/tests/SignUp.test.tsx(79,79): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/tests/SignUp.test.tsx(84,43): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/tests/SignUp.test.tsx(97,55): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/tests/SignUp.test.tsx(112,56): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/tests/SignUp.test.tsx(130,59): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/tests/SignUp.test.tsx(150,77): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/tests/SignUp.test.tsx(171,61): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/tests/SignUp.test.tsx(192,58): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/tests/SignUp.test.tsx(215,72): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement | null>'.
+src/tests/SignUp.test.tsx(253,60): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/tests/SignUp.test.tsx(271,62): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/tests/SignUp.test.tsx(272,53): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/tests/SignUp.test.tsx(273,56): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/tests/UserProfile.test.tsx(11,23): error TS2307: Cannot find module '@testing-library/user-event' or its corresponding type declarations.
+src/tests/UserProfile.test.tsx(13,25): error TS2307: Cannot find module '../../components/auth/UserProfile' or its corresponding type declarations.
+src/tests/UserProfile.test.tsx(47,44): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/tests/UserProfile.test.tsx(52,45): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/tests/UserProfile.test.tsx(57,52): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/tests/UserProfile.test.tsx(62,61): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/tests/UserProfile.test.tsx(67,64): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/tests/UserProfile.test.tsx(74,53): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/tests/UserProfile.test.tsx(75,45): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/tests/UserProfile.test.tsx(80,45): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/tests/UserProfile.test.tsx(85,45): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/tests/UserProfile.test.tsx(86,52): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/tests/UserProfile.test.tsx(98,68): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/tests/UserProfile.test.tsx(108,68): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/tests/UserProfile.test.tsx(109,63): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/tests/UserProfile.test.tsx(184,68): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/tests/UserProfile.test.tsx(198,61): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/tests/UserProfile.test.tsx(246,9): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/tests/UserProfile.test.tsx(251,45): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.
+src/tests/UserProfile.test.tsx(252,52): error TS2339: Property 'toBeInTheDocument' does not exist on type 'Assertion<HTMLElement>'.

@@ -1,0 +1,305 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  # ============================================================================
+  # LINTING & CODE QUALITY
+  # ============================================================================
+  lint:
+    runs-on: ubuntu-latest
+    name: Lint Code
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          cache: 'npm'
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Run ESLint
+        run: npm run lint
+      
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+      
+      - name: Install Python dependencies
+        run: |
+          cd services/ai
+          pip install -r requirements.txt
+          cd ../..
+      
+      - name: Run Pylint
+        run: |
+          cd services/ai
+          pylint app/ --exit-zero
+          cd ../..
+
+  # ============================================================================
+  # UNIT TESTS
+  # ============================================================================
+  test-unit:
+    runs-on: ubuntu-latest
+    name: Unit Tests
+    needs: lint
+    services:
+      firebase-emulator:
+        image: google/firebase-tools:latest
+        options: >-
+          --health-cmd="firebase --version"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+        ports:
+          - 4000:4000
+          - 5000:5000
+          - 9099:9099
+    
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          cache: 'npm'
+      
+      - name: Install Node dependencies
+        run: npm ci
+      
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+      
+      - name: Install Python dependencies
+        run: |
+          cd services/ai
+          pip install -r requirements.txt
+          cd ../..
+      
+      - name: Run Node.js Unit Tests
+        run: npm run test:unit -- --coverage
+        env:
+          NODE_ENV: test
+      
+      - name: Run Python Unit Tests
+        run: |
+          cd services/ai
+          pytest tests/unit --cov=app --cov-report=xml
+          cd ../..
+        env:
+          PYTHONPATH: services/ai
+      
+      - name: Upload coverage to Codecov
+        uses: codecov/codecov-action@v3
+        with:
+          files: ./coverage/lcov.info, ./services/ai/coverage.xml
+          flags: unittests
+          name: codecov-umbrella
+
+  # ============================================================================
+  # INTEGRATION TESTS
+  # ============================================================================
+  test-integration:
+    runs-on: ubuntu-latest
+    name: Integration Tests
+    needs: test-unit
+    services:
+      mongodb:
+        image: mongo:5
+        options: >-
+          --health-cmd="mongosh --eval 'db.version()'"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+        ports:
+          - 27017:27017
+    
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          cache: 'npm'
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Setup Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+      
+      - name: Install Python dependencies
+        run: |
+          cd services/ai
+          pip install -r requirements.txt
+          cd ../..
+      
+      - name: Run Integration Tests
+        run: npm run test:integration
+        env:
+          NODE_ENV: test
+          MONGODB_URL: mongodb://localhost:27017/test
+
+  # ============================================================================
+  # SECURITY SCANNING
+  # ============================================================================
+  security:
+    runs-on: ubuntu-latest
+    name: Security Scan
+    needs: lint
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Run OWASP Dependency Check
+        uses: dependency-check/Dependency-Check_Action@main
+        with:
+          path: '.'
+          format: 'JSON'
+          args: >
+            --enableExperimental
+            --enable-retired
+      
+      - name: Check for secrets
+        run: |
+          if grep -r "sk_live_" . --include="*.ts" --include="*.js" --include="*.py" 2>/dev/null; then
+            echo "ERROR: Production secrets found in code!"
+            exit 1
+          fi
+          if grep -r "AKIA" . --include="*.ts" --include="*.js" --include="*.py" 2>/dev/null; then
+            echo "ERROR: AWS credentials found in code!"
+            exit 1
+          fi
+          echo "✓ No secrets detected"
+
+  # ============================================================================
+  # BUILD DOCKER IMAGES
+  # ============================================================================
+  build-images:
+    runs-on: ubuntu-latest
+    name: Build Docker Images
+    needs: [ test-unit, test-integration, security ]
+    permissions:
+      contents: read
+      packages: write
+    
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+      
+      - name: Log in to Container Registry
+        uses: docker/login-action@v2
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      
+      - name: Extract metadata
+        id: meta
+        uses: docker/metadata-action@v4
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          tags: |
+            type=ref,event=branch
+            type=sha,prefix={{branch}}-
+            type=semver,pattern={{version}}
+      
+      - name: Build and push API service
+        uses: docker/build-push-action@v4
+        with:
+          context: ./services/api
+          push: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/api:latest
+          cache-from: type=registry,ref=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/api:buildcache
+          cache-to: type=registry,ref=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/api:buildcache,mode=max
+      
+      - name: Build and push AI service
+        uses: docker/build-push-action@v4
+        with:
+          context: ./services/ai
+          push: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+          tags: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/ai:latest
+          cache-from: type=registry,ref=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/ai:buildcache
+          cache-to: type=registry,ref=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/ai:buildcache,mode=max
+
+  # ============================================================================
+  # E2E TESTS
+  # ============================================================================
+  test-e2e:
+    runs-on: ubuntu-latest
+    name: E2E Tests
+    needs: build-images
+    if: github.event_name == 'pull_request'
+    
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          cache: 'npm'
+      
+      - name: Install dependencies
+        run: npm ci
+      
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps
+      
+      - name: Start services
+        run: |
+          docker-compose -f docker-compose.test.yml up -d
+          npm run db:migrate
+          npm run db:seed
+      
+      - name: Run E2E tests
+        run: npm run test:e2e
+      
+      - name: Upload test results
+        if: always()
+        uses: actions/upload-artifact@v3
+        with:
+          name: playwright-report
+          path: playwright-report/
+
+  # ============================================================================
+  # NOTIFICATION
+  # ============================================================================
+  notify:
+    runs-on: ubuntu-latest
+    name: Notify Status
+    needs: [ lint, test-unit, test-integration, security, build-images ]
+    if: always()
+    
+    steps:
+      - name: Check job status
+        run: |
+          if [ "${{ job.status }}" == "success" ]; then
+            echo "✅ All checks passed!"
+          else
+            echo "❌ Some checks failed"
+            exit 1
+          fi

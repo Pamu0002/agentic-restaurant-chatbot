@@ -1,0 +1,41 @@
+{
+  "name": "agentic-restaurant-chatbot",
+  "version": "1.0.0",
+  "description": "Agentic Restaurant Chatbot Platform - Unified conversational AI for restaurant discovery, booking, and payments",
+  "private": true,
+  "packageManager": "pnpm@8.0.0",
+  "scripts": {
+    "dev": "pnpm --recursive run dev",
+    "build": "pnpm --recursive run build",
+    "test": "pnpm --recursive run test",
+    "test:auth": "pnpm -F @restaurant/api run test:auth",
+    "test:auth:e2e": "pnpm -F @restaurant/api run test -- tests/auth.e2e.test.ts",
+    "test:auth:routes": "pnpm -F @restaurant/api run test -- tests/auth.routes.integration.test.ts",
+    "test:api:integration": "pnpm -F @restaurant/web run test:api",
+    "lint": "pnpm --recursive run lint",
+    "web:dev": "pnpm -F @restaurant/web dev",
+    "web:build": "pnpm -F @restaurant/web build",
+    "mobile:dev": "pnpm -F @restaurant/mobile start",
+    "api:dev": "pnpm -F @restaurant/api dev",
+    "ai:dev": "pnpm -F @restaurant/ai dev",
+    "docker:up": "docker-compose up -d",
+    "docker:down": "docker-compose down",
+    "docker:logs": "docker-compose logs -f"
+  },
+  "keywords": [
+    "agentic-chatbot",
+    "restaurant",
+    "booking",
+    "AI",
+    "monorepo"
+  ],
+  "author": "Your Name",
+  "license": "MIT",
+  "dependencies": {
+    "@langchain/core": "^1.1.40",
+    "@langchain/google-vertexai": "^2.1.27",
+    "google-auth-library-nodejs": "0.0.1-security.6",
+    "langchain": "^1.3.3",
+    "react-icons": "^5.6.0"
+  }
+}
